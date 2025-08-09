@@ -6,24 +6,46 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.3</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
+
     <groupId>com.expenlytics</groupId>
-    <artifactId>exoenselytics</artifactId>
+    <artifactId>expenselytics-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>expenselytics</name>
     <description>Finance app</description>
-    <packaging>pom</packaging>
 
     <properties>
         <java.version>17</java.version>
+        <project.version>0.0.1-SNAPSHOT</project.version>
     </properties>
-<!--Relative path for the child module-->
+
     <modules>
-        <module>db</module>
         <module>core</module>
+        <module>db</module>
         <module>web</module>
         <module>ui</module>
         <module>app</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.expenlytics</groupId>
+                <artifactId>core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.expenlytics</groupId>
+                <artifactId>db</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.expenlytics</groupId>
+                <artifactId>web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
