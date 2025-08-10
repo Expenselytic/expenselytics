@@ -16,3 +16,4 @@ coverage/
 expenselytics/ui/node
 
 
+/app/src/main/resources/
