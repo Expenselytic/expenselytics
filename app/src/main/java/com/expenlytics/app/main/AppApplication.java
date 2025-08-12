@@ -1,4 +1,4 @@
-package com.expenlytics.app;
+package com.expenlytics.app.main;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,9 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan("com.expenlytics.db.entity")
 @EnableJpaRepositories("com.expenlytics.db.entity")
 public class AppApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(AppApplication.class, args);
 	}
-
 }

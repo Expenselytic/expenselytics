@@ -42,6 +42,11 @@
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-jpa</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.concordion</groupId>
+			<artifactId>concordion</artifactId>
+			<version>4.0.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
