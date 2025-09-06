@@ -1,6 +1,6 @@
-package com.expenlytics;
+package com.expenlytics.core;
 
-import com.expenlytics.model.AddExpense;
+import com.expenlytics.core.model.AddExpense;
 import reactor.core.publisher.Mono;
 
 public interface CreateExpense {

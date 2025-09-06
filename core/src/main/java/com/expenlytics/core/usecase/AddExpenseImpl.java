@@ -1,9 +1,9 @@
-package com.expenlytics.usecase;
+package com.expenlytics.core.usecase;
 
-import com.expenlytics.CreateExpense;
-import com.expenlytics.dao.AddExpenseDAO;
-import com.expenlytics.exception.InvalidInformationException;
-import com.expenlytics.model.AddExpense;
+import com.expenlytics.core.CreateExpense;
+import com.expenlytics.core.dao.AddExpenseDAO;
+import com.expenlytics.core.exception.InvalidInformationException;
+import com.expenlytics.core.model.AddExpense;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -33,9 +33,9 @@ public class AddExpenseImpl implements CreateExpense {
         }
     }
 
-    private void validateExpense(com.expenlytics.model.AddExpense addExpense) {
+    private void validateExpense(AddExpense addExpense) {
         if (addExpense.getName().isEmpty()) {
-            throw new InvalidInformationException("Amount cannot be null");
+            throw new InvalidInformationException("Name cannot be null");
         }
         else if (addExpense.getCategory().isEmpty()) {
             throw new InvalidInformationException("Category cannot be null");

@@ -1,4 +1,4 @@
-package com.expenlytics.model;
+package com.expenlytics.core.model;
 
 import java.time.LocalDateTime;
 

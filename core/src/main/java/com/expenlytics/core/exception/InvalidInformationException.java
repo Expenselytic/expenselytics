@@ -1,4 +1,4 @@
-package com.expenlytics.exception;
+package com.expenlytics.core.exception;
 
 public class InvalidInformationException extends RuntimeException {
     public InvalidInformationException() {

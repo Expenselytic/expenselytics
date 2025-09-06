@@ -1,4 +1,4 @@
-package com.expenlytics.app.main;
+package com.expenlytics.app.main.java;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

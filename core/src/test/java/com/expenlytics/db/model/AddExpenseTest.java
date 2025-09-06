@@ -1,5 +1,6 @@
-package com.expenlytics.model;
+package com.expenlytics.db.model;
 
+import com.expenlytics.core.model.AddExpense;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;

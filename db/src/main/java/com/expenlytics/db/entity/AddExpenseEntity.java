@@ -1,6 +1,6 @@
-package com.expenlytics.entity;
+package com.expenlytics.db.entity;
 
-import com.expenlytics.model.AddExpense;
+import com.expenlytics.core.model.AddExpense;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

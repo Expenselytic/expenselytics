@@ -1,4 +1,4 @@
-package com.expenlytics.exception;
+package com.expenlytics.core.exception;
 
 import java.io.Serial;
 

@@ -8,6 +8,7 @@ To start a local development server, run:
 
 ```bash
 ng serve
+java "-Dloader.path=/Users/karanbudhathoki/Project Work/project2025/expenselytics/app" -jar app/target/app-1.0.0-SNAPSHOT.jar
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
