@@ -1,7 +1,7 @@
 package com.expenlytics.web.controller;
 
-import com.expenlytics.core.dao.AddExpenseDAO;
 import com.expenlytics.core.exception.InvalidInformationException;
+import com.expenlytics.core.model.AddExpense;
 import com.expenlytics.core.usecase.AddExpenseImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,14 +14,12 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 
 @RestController
-public class AddExpense {
+public class AddExpenseController {
     @Autowired
     private AddExpenseImpl addExpense;
 
-   com.expenlytics.core.model.AddExpense addExpenses = new com.expenlytics.core.model.AddExpense("Lunch", "15.50", "Food", LocalDateTime.now());
-
-    @PostMapping("/addExpense")
-    public Mono<String> addExpense(@RequestBody com.expenlytics.core.model.AddExpense addExpenseRequest) {
+    @PostMapping("/api/addExpense")
+    public Mono<String> addExpense(@RequestBody AddExpense addExpenseRequest) {
         return Mono.just(addExpenseRequest)
                 .flatMap(addExpense::createExpense) // call reactive service
                 .onErrorMap(InvalidInformationException.class, e -> new ResponseStatusException(

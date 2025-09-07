@@ -55,6 +55,28 @@
               <arguments>run test -- --watch=false --browsers=ChromeHeadless</arguments>
             </configuration>
           </execution>
+
+          <execution>
+            <id>npm-ci</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <arguments>ci</arguments>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>ng-build</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>prepare-package</phase>
+            <configuration>
+            <arguments>run build</arguments>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
     </plugins>
