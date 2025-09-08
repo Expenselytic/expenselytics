@@ -15,10 +15,11 @@ import java.time.LocalDateTime;
 
 @RestController
 public class AddExpenseController {
+    public static final String ADD_EXPENSE = ApiRootController.ROOT+"/addExpense";
     @Autowired
     private AddExpenseImpl addExpense;
 
-    @PostMapping("/api/addExpense")
+    @PostMapping(ADD_EXPENSE)
     public Mono<String> addExpense(@RequestBody AddExpense addExpenseRequest) {
         return Mono.just(addExpenseRequest)
                 .flatMap(addExpense::createExpense) // call reactive service

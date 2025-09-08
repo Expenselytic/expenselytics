@@ -12,73 +12,56 @@
   <name>ui</name>
   <description>Finance app</description>
   <url/>
-  <build>
+<build>
     <plugins>
-      <!-- Plugin to handle node/npm and npm scripts -->
-      <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <version>1.13.3</version>
+        <!-- Frontend plugin (Node/NPM/Angular) -->
+        <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>1.13.3</version>
+            <executions>
+                <execution>
+                    <id>npm install</id>
+                    <goals><goal>npm</goal></goals>
+                    <configuration><arguments>install</arguments></configuration>
+                </execution>
 
-        <executions>
-          <!-- Install Node and NPM -->
-          <execution>
-            <id>install node and npm</id>
-            <goals>
-              <goal>install-node-and-npm</goal>
-            </goals>
-            <configuration>
-              <nodeVersion>v22.17.0</nodeVersion>
-              <npmVersion>10.9.2</npmVersion>
-            </configuration>
-          </execution>
+                <execution>
+                    <id>npm test</id>
+                    <goals><goal>npm</goal></goals>
+                    <phase>test</phase>
+                    <configuration><arguments>run test -- --watch=false --browsers=ChromeHeadless</arguments></configuration>
+                </execution>
 
-          <!-- npm install -->
-          <execution>
-            <id>npm install</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <arguments>install</arguments>
-            </configuration>
-          </execution>
+                <execution>
+                    <id>ng-build</id>
+                    <goals><goal>npm</goal></goals>
+                    <phase>prepare-package</phase>
+                    <configuration><arguments>run build</arguments></configuration>
+                </execution>
+            </executions>
+        </plugin>
 
-          <!-- Run Angular/Karma/Jasmine tests -->
-          <execution>
-            <id>npm test</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <phase>test</phase>
+        <!-- Clean plugin to remove node_modules/dist/target -->
+        <plugin>
+            <artifactId>maven-clean-plugin</artifactId>
+            <version>3.2.0</version>
             <configuration>
-              <arguments>run test -- --watch=false --browsers=ChromeHeadless</arguments>
+                <filesets>
+                    <fileset>
+                        <directory>${project.basedir}/node_modules</directory>
+                    </fileset>
+                    <fileset>
+                        <directory>${project.basedir}/dist</directory>
+                    </fileset>
+                    <fileset>
+                        <directory>${project.build.directory}</directory>
+                    </fileset>
+                </filesets>
             </configuration>
-          </execution>
-
-          <execution>
-            <id>npm-ci</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <phase>generate-resources</phase>
-            <configuration>
-              <arguments>ci</arguments>
-            </configuration>
-          </execution>
-
-          <execution>
-            <id>ng-build</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <phase>prepare-package</phase>
-            <configuration>
-            <arguments>run build</arguments>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+        </plugin>
     </plugins>
-  </build>
+</build>
+
+
 </project>
