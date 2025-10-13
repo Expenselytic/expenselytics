@@ -2,13 +2,13 @@ package com.expenlytics.core.model;
 
 import java.time.LocalDateTime;
 
-public class AddExpense {
+public class Expense {
     private String name;
     private String category;
     private String amount;
     private LocalDateTime date;
 
-    public AddExpense(String name, String category, String amount, LocalDateTime date) {
+    public Expense(String name, String category, String amount, LocalDateTime date) {
         this.name = name;
         this.category = category;
         this.amount = amount;

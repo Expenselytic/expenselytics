@@ -1,15 +1,15 @@
 package com.expenlytics.db.model;
 
-import com.expenlytics.core.model.AddExpense;
+import com.expenlytics.core.model.Expense;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-public class AddExpenseTest {
+public class ExpenseTest {
     @Test
     public void testAddExpense() {
         // Create an instance of AddExpense
-        AddExpense expense = new AddExpense("Lunch", "Food", "15.50", LocalDateTime.now());
+        Expense expense = new Expense("Lunch", "Food", "15.50", LocalDateTime.now());
 
         // Validate the properties
         assert "Lunch".equals(expense.getName());

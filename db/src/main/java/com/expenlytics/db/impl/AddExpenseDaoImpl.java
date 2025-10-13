@@ -3,9 +3,8 @@ package com.expenlytics.db.impl;
 import com.expenlytics.core.dao.AddExpenseDAO;
 import com.expenlytics.db.entity.AddExpenseEntity;
 import com.expenlytics.db.repository.CreateExpenseRepository;
-import com.expenlytics.core.model.AddExpense;
+import com.expenlytics.core.model.Expense;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
@@ -20,7 +19,7 @@ public class AddExpenseDaoImpl implements AddExpenseDAO {
     }
 
     @Override
-    public void createExpense(AddExpense addExpense) {
-        createExpenseRepository.save(new AddExpenseEntity(addExpense));
+    public void createExpense(Expense expense) {
+        createExpenseRepository.save(new AddExpenseEntity(expense));
     }
 }

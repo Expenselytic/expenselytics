@@ -3,7 +3,7 @@ package com.expenlytics.core.usecase;
 import com.expenlytics.core.CreateExpense;
 import com.expenlytics.core.dao.AddExpenseDAO;
 import com.expenlytics.core.exception.InvalidInformationException;
-import com.expenlytics.core.model.AddExpense;
+import com.expenlytics.core.model.Expense;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -21,11 +21,11 @@ public class AddExpenseImpl implements CreateExpense {
     private AddExpenseDAO addExpenseDAO;
 
     @Override
-    public Mono<String> createExpense(AddExpense addExpense) {
-        validateExpense(addExpense);
+    public Mono<String> createExpense(Expense expense) {
+        validateExpense(expense);
         try {
             return Mono.fromCallable(()->{
-                addExpenseDAO.createExpense(addExpense);
+                addExpenseDAO.createExpense(expense);
                 return "Expense created successfully";
             }).subscribeOn(Schedulers.boundedElastic());
         } catch (Exception e) {
@@ -33,23 +33,23 @@ public class AddExpenseImpl implements CreateExpense {
         }
     }
 
-    private void validateExpense(AddExpense addExpense) {
-        if (addExpense.getName().isEmpty()) {
+    private void validateExpense(Expense expense) {
+        if (expense.getName().isEmpty()) {
             throw new InvalidInformationException("Name cannot be null");
         }
-        else if (addExpense.getCategory().isEmpty()) {
+        else if (expense.getCategory().isEmpty()) {
             throw new InvalidInformationException("Category cannot be null");
         }
-        else if (addExpense.getAmount().isEmpty()) {
+        else if (expense.getAmount().isEmpty()) {
             throw new InvalidInformationException("Amount cannot be null");
         }
-        else if(AMOUNT.matches(addExpense.getAmount().trim())) {
+        else if(AMOUNT.matches(expense.getAmount().trim())) {
             throw new InvalidInformationException("Amount must be a valid number");
         }
-        else if (addExpense.getDate().isAfter(LocalDateTime.now())) {
+        else if (expense.getDate().isAfter(LocalDateTime.now())) {
             throw new InvalidInformationException("Date cannot be in the future");
         }
-        else if (addExpense.getDate() == null) {
+        else if (expense.getDate() == null) {
             throw new InvalidInformationException("Date cannot be null");
         }
     }

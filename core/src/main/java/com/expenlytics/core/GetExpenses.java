@@ -3,6 +3,8 @@ package com.expenlytics.core;
 import com.expenlytics.core.model.Expense;
 import reactor.core.publisher.Mono;
 
-public interface CreateExpense {
-    Mono<String> createExpense(Expense expense);
+import java.util.List;
+
+public interface GetExpenses {
+    Mono<List<Expense>> getExpenses();
 }

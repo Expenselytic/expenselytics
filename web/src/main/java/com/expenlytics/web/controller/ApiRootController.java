@@ -16,15 +16,15 @@ public class ApiRootController {
 
     @GetMapping()
     public Mono<ApiRootModel> get() {
-        return Mono.just("")
-                .map(s -> toApiRootModel());
+        return Mono.fromSupplier(this::toApiRootModel);
     }
 
     private ApiRootModel toApiRootModel() {
         var root = new ApiRootModel("1.0", "OK");
         return root
                 .add(Link.of(ROOT))
-                .add(Link.of(AddExpenseController.ADD_EXPENSE, "addExpense"));
+                .add(Link.of(AddExpenseController.ADD_EXPENSE, "addExpense"))
+                .add(Link.of(GetExpenseController.GET_EXPENSE, "getExpense"));
     }
 }
 

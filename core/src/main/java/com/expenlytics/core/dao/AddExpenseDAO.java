@@ -1,7 +1,7 @@
 package com.expenlytics.core.dao;
 
-import com.expenlytics.core.model.AddExpense;
+import com.expenlytics.core.model.Expense;
 
 public interface AddExpenseDAO {
-    void createExpense(AddExpense addExpense);
+    void createExpense(Expense expense);
 }
