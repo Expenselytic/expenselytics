@@ -4,5 +4,5 @@ import com.expenlytics.core.model.Expense;
 import reactor.core.publisher.Mono;
 
 public interface CreateExpense {
-    Mono<String> createExpense(Expense expense);
+    Mono<Expense> createExpense(Expense expense);
 }

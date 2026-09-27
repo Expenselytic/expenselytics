@@ -29,11 +29,14 @@ public class AddExpenseEntity {
     public AddExpenseEntity(){}
 
     public AddExpenseEntity(Expense expense) {
-        uid = 1;
+        this.uid = 1;
         name = expense.getName();
         category = expense.getCategory();
         amount = expense.getAmount();
         date = expense.getDate();
+    }
+    public long getId() {
+        return this.id;
     }
 
     public String getName() {
@@ -66,6 +69,13 @@ public class AddExpenseEntity {
 
     public void setDate(LocalDateTime date) {
         this.date = date;
+    }
+
+    public void updateFrom(Expense expense) {
+        name = expense.getName().trim();
+        category = expense.getCategory().trim();
+        amount = expense.getAmount().trim();
+        date = expense.getDate();
     }
 
 }

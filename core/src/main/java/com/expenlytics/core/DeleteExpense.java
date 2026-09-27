@@ -1,7 +1,7 @@
-package com.expenlytics.core.usecase;
+package com.expenlytics.core;
 
 import reactor.core.publisher.Mono;
 
 public interface DeleteExpense {
-    Mono<Long> deleteExpense(Long id);
+    Mono<Void> deleteExpense(Long id);
 }

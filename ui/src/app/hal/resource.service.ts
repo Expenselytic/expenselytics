@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 import { HAL_CONFIG, HalConfig } from "./hal.module";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { catchError, map, Observable, throwError } from "rxjs";
 import { Resource } from "./resource";
 import { ApiError } from "./api.error";
@@ -14,9 +14,10 @@ export class ResourceService {
             this.root = config.apiRoot;
     }
     get<T extends Resource>(type: new (x: any) => T, uri: string): Observable<T> {
-        return this.httpClient.get<any>(uri).pipe(
+        const target = this.resolve(uri);
+        return this.httpClient.get<any>(target).pipe(
             map(obj => Resource.create(type, obj)),
-            map(r => this.ensureSelf(r, uri)),
+            map(r => this.ensureSelf(r, target)),
             catchError(err => this.handleError(err))
         );
     }
@@ -25,12 +26,39 @@ export class ResourceService {
         return this.get(type, this.root);
     }
 
+    post<T>(uri: string, body: unknown): Observable<T> {
+        return this.httpClient.post<T>(this.resolve(uri), body, { headers: this.authHeaders() }).pipe(
+            catchError(err => this.handleError(err))
+        );
+    }
+
+    put<T>(uri: string, body: unknown): Observable<T> {
+        return this.httpClient.put<T>(this.resolve(uri), body, { headers: this.authHeaders() }).pipe(
+            catchError(err => this.handleError(err))
+        );
+    }
+
+    delete(uri: string): Observable<void> {
+        return this.httpClient.delete<void>(this.resolve(uri), { headers: this.authHeaders() }).pipe(
+            catchError(err => this.handleError(err))
+        );
+    }
+
+    private authHeaders(): HttpHeaders {
+        const token = globalThis.localStorage?.getItem('authToken');
+        return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+    }
+
     private ensureSelf<T extends Resource>(resource: T, uri: string): T {
         if (!resource.hasLink('self')) {
             resource._links['self'] = { href: uri };
         }
 
         return resource;
+    }
+
+    private resolve(uri: string): string {
+        return new URL(uri, this.root).toString();
     }
 
     private handleError(err: HttpErrorResponse): Observable<never> {

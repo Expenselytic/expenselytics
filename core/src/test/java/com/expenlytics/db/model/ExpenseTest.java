@@ -9,7 +9,12 @@ public class ExpenseTest {
     @Test
     public void testAddExpense() {
         // Create an instance of AddExpense
-        Expense expense = new Expense("Lunch", "Food", "15.50", LocalDateTime.now());
+        Expense expense = new Expense(
+                1,
+                "Lunch",
+                "Food",
+                "15.50",
+                LocalDateTime.now());
 
         // Validate the properties
         assert "Lunch".equals(expense.getName());

@@ -51,6 +51,10 @@ export class Resource {
             return !uri ? this.error(`${rel} uri is undefined`) : service.get<T>(type, uri);
     }
 
+    hrefFor(rel: string, params: { [key: string]: any } = {}): string | undefined {
+        return this.href(rel, params);
+    }
+
     get<T extends Resource>(type: new (x: any) => T, rel: string): T | T[] | undefined {
         const obj= this._embedded?.[rel];
 

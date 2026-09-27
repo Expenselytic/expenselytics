@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ShowExpense } from './show-expense/show-expense';
+import { ShowExpense } from './Expense/show-expense/show-expense.component';
 
 export const routes: Routes = [
   {

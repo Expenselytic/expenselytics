@@ -22,9 +22,6 @@ public class GetExpenseImpl implements GetExpenses {
     @Override
     public Mono<List<Expense>> getExpenses() {
         return Mono.fromCallable(getExpenseDAO::getExpense)
-                .subscribeOn(Schedulers.boundedElastic())
-                .onErrorResume(ex ->
-                        Mono.error(new RuntimeException
-                                ("Failed to fetch expenses", ex)));
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }

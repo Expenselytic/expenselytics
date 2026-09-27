@@ -17,9 +17,13 @@ public class ApiRootControllerTest {
         assertEquals("1.0", model.apiVersion, "API version should be 1.0");
         assertEquals("OK", model.status, "Status should be OK");
 
-        assertEquals(ApiRootController.ROOT, model.getLink("self").orElseThrow().getHref(),
+        assertEquals(
+                ApiRootController.ROOT,
+                model.getLink("self").orElseThrow().getHref(),
                 "Self link should match ROOT");
-        assertEquals(AddExpenseController.ADD_EXPENSE, model.getRequiredLink("addExpense").getHref(),
+        assertEquals(
+                ApiRootController.ROOT + "/expenses",
+                model.getRequiredLink("addExpense").getHref(),
                 "AddExpense link should be present");
     }
 }

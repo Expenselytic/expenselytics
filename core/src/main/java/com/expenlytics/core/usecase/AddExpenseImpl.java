@@ -4,7 +4,6 @@ import com.expenlytics.core.CreateExpense;
 import com.expenlytics.core.dao.AddExpenseDAO;
 import com.expenlytics.core.exception.InvalidInformationException;
 import com.expenlytics.core.model.Expense;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -17,40 +16,40 @@ import java.time.LocalDateTime;
 public class AddExpenseImpl implements CreateExpense {
     public static final String AMOUNT = "^\\d+(\\.\\d{1,2})?$";
 
-    @Autowired
-    private AddExpenseDAO addExpenseDAO;
+    private final AddExpenseDAO addExpenseDAO;
+
+    public AddExpenseImpl(AddExpenseDAO addExpenseDAO) {
+        this.addExpenseDAO = addExpenseDAO;
+    }
 
     @Override
-    public Mono<String> createExpense(Expense expense) {
+    public Mono<Expense> createExpense(Expense expense) {
         validateExpense(expense);
-        try {
-            return Mono.fromCallable(()->{
-                addExpenseDAO.createExpense(expense);
-                return "Expense created successfully";
-            }).subscribeOn(Schedulers.boundedElastic());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return Mono.fromCallable(() -> addExpenseDAO.createExpense(expense))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     private void validateExpense(Expense expense) {
-        if (expense.getName().isEmpty()) {
-            throw new InvalidInformationException("Name cannot be null");
+        if (expense == null) {
+            throw new InvalidInformationException("Expense is required");
         }
-        else if (expense.getCategory().isEmpty()) {
-            throw new InvalidInformationException("Category cannot be null");
+        if (expense.getName() == null || expense.getName().isBlank()) {
+            throw new InvalidInformationException("Name is required");
         }
-        else if (expense.getAmount().isEmpty()) {
-            throw new InvalidInformationException("Amount cannot be null");
+        else if (expense.getCategory() == null || expense.getCategory().isBlank()) {
+            throw new InvalidInformationException("Category is required");
         }
-        else if(AMOUNT.matches(expense.getAmount().trim())) {
+        else if (expense.getAmount() == null || expense.getAmount().isBlank()) {
+            throw new InvalidInformationException("Amount is required");
+        }
+        else if(!expense.getAmount().trim().matches(AMOUNT)) {
             throw new InvalidInformationException("Amount must be a valid number");
+        }
+        else if (expense.getDate() == null) {
+            throw new InvalidInformationException("Date is required");
         }
         else if (expense.getDate().isAfter(LocalDateTime.now())) {
             throw new InvalidInformationException("Date cannot be in the future");
-        }
-        else if (expense.getDate() == null) {
-            throw new InvalidInformationException("Date cannot be null");
         }
     }
 }

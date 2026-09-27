@@ -22,10 +22,12 @@ public class ApiRootController {
     private ApiRootModel toApiRootModel() {
         var root = new ApiRootModel("1.0", "OK");
         return root
-                .add(Link.of(ROOT))
-                .add(Link.of(AddExpenseController.ADD_EXPENSE, "addExpense"))
-                .add(Link.of(GetExpenseController.GET_EXPENSE, "getExpense"));
+                .add(Link.of(ROOT).withSelfRel())
+                .add(Link.of(ROOT + "/expenses", "expenses"))
+                .add(Link.of(ROOT + "/expenses", "addExpense"))
+                .add(Link.of(ROOT + "/expenses", "getExpense"))
+                .add(Link.of(ROOT + "/expenses/{id}", "expense"))
+                .add(Link.of(ROOT + "/expenses/{id}", "editExpense"))
+                .add(Link.of(ROOT + "/expenses/{id}", "deleteExpense"));
     }
 }
-
-
