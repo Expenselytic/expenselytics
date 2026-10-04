@@ -1,0 +1,13 @@
+.git
+.idea
+.vscode
+**/target
+**/node_modules
+**/node
+**/dist
+.env
+.env.*
+**/.DS_Store
+app/src/main/resources
+data
+backups

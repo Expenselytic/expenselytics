@@ -58,7 +58,8 @@ export class ResourceService {
     }
 
     private resolve(uri: string): string {
-        return new URL(uri, this.root).toString();
+        if (uri.startsWith('/')) { return uri; }
+        return new URL(uri, new URL(this.root, globalThis.location.origin)).toString();
     }
 
     private handleError(err: HttpErrorResponse): Observable<never> {

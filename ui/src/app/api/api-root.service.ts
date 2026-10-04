@@ -10,7 +10,7 @@ export class ApiRootService implements OnDestroy{
     private readonly subscription = new Subscription();
     constructor(private zone: NgZone, private readonly http: HttpClient) {
         this.zone.runOutsideAngular(() => {
-            const sub = this.http.get<ApiRoot>('http://localhost:8080/api/v1').subscribe({
+            const sub = this.http.get<ApiRoot>('/api/v1').subscribe({
                 next: (root) => this.apiRoot$.next(root),
                 error: (err) => this.apiRoot$.error(err)
             });

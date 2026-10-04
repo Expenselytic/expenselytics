@@ -6,7 +6,9 @@ target/
 **/target/
 */target/
 .DS_Store
-.env
+.env.expenselytics
+/data/
+/backups/
 .DS_Store
 npm-debug.log
 yarn-error.log
@@ -14,6 +16,8 @@ coverage/
 .vscode/
 .idea/
 expenselytics/ui/node
+/NAS-SETUP.md
+/compose.yaml
 
 
 /app/src/main/resources/

@@ -25,7 +25,7 @@ export class ApiRoot extends Resource {
 
     deleteExpense(service: ResourceService, id: number): Observable<void> {
         const href = this.hrefFor('deleteExpense', { id }) ??
-            `${this.hrefFor('self') ?? 'http://localhost:8080/api/v1'}/deleteExpense/${id}`;
+            `${this.hrefFor('self') ?? '/api/v1'}/deleteExpense/${id}`;
         return service.delete(href);
     }
 
