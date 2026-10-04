@@ -1,20 +1,21 @@
 package com.expenlytics.db.model;
 
 import com.expenlytics.core.model.Expense;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
-
 public class ExpenseTest {
+
     @Test
     public void testAddExpense() {
         // Create an instance of AddExpense
         Expense expense = new Expense(
-                1,
-                "Lunch",
-                "Food",
-                "15.50",
-                LocalDateTime.now());
+            1,
+            "Lunch",
+            "Food",
+            "15.50",
+            LocalDateTime.now()
+        );
 
         // Validate the properties
         assert "Lunch".equals(expense.getName());

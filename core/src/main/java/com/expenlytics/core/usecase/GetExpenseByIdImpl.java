@@ -10,6 +10,7 @@ import reactor.core.scheduler.Schedulers;
 
 @Service
 public class GetExpenseByIdImpl implements GetExpense {
+
     private final FindExpenseDAO findExpenseDAO;
 
     public GetExpenseByIdImpl(FindExpenseDAO findExpenseDAO) {
@@ -21,7 +22,8 @@ public class GetExpenseByIdImpl implements GetExpense {
         if (id == null || id <= 0) {
             throw new InvalidInformationException("ID must be positive");
         }
-        return Mono.fromCallable(() -> findExpenseDAO.findExpense(id))
-                .subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromCallable(() ->
+            findExpenseDAO.findExpense(id)
+        ).subscribeOn(Schedulers.boundedElastic());
     }
 }

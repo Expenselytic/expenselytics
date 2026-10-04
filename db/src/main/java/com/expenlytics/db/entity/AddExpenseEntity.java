@@ -2,11 +2,12 @@ package com.expenlytics.db.entity;
 
 import com.expenlytics.core.model.Expense;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "expense")
 public class AddExpenseEntity {
+
     @Column(nullable = false)
     private int uid;
 
@@ -26,7 +27,7 @@ public class AddExpenseEntity {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    public AddExpenseEntity(){}
+    public AddExpenseEntity() {}
 
     public AddExpenseEntity(Expense expense) {
         this.uid = 1;
@@ -35,6 +36,7 @@ public class AddExpenseEntity {
         amount = expense.getAmount();
         date = expense.getDate();
     }
+
     public long getId() {
         return this.id;
     }
@@ -77,5 +79,4 @@ public class AddExpenseEntity {
         amount = expense.getAmount().trim();
         date = expense.getDate();
     }
-
 }

@@ -3,21 +3,22 @@ package com.expenlytics.core.model;
 import java.time.LocalDateTime;
 
 public class Expense {
+
     private long id;
     private String name;
     private String category;
     private String amount;
     private LocalDateTime date;
 
-    public Expense() {
-    }
+    public Expense() {}
 
     public Expense(
-            long id,
-            String name,
-            String category,
-            String amount,
-            LocalDateTime date) {
+        long id,
+        String name,
+        String category,
+        String amount,
+        LocalDateTime date
+    ) {
         this.id = id;
         this.name = name;
         this.category = category;

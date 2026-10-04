@@ -4,14 +4,14 @@ import com.expenlytics.core.UpdateExpense;
 import com.expenlytics.core.dao.UpdateExpenseDAO;
 import com.expenlytics.core.exception.InvalidInformationException;
 import com.expenlytics.core.model.Expense;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.time.LocalDateTime;
-
 @Service
 public class UpdateExpenseImpl implements UpdateExpense {
+
     private static final String AMOUNT = "^\\d+(\\.\\d{1,2})?$";
     private final UpdateExpenseDAO updateExpenseDAO;
 
@@ -22,8 +22,9 @@ public class UpdateExpenseImpl implements UpdateExpense {
     @Override
     public Mono<Expense> updateExpense(Long id, Expense expense) {
         validate(id, expense);
-        return Mono.fromCallable(() -> updateExpenseDAO.updateExpense(id, expense))
-                .subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromCallable(() ->
+            updateExpenseDAO.updateExpense(id, expense)
+        ).subscribeOn(Schedulers.boundedElastic());
     }
 
     private void validate(Long id, Expense expense) {
@@ -36,21 +37,27 @@ public class UpdateExpenseImpl implements UpdateExpense {
         if (expense.getName() == null || expense.getName().isBlank()) {
             throw new InvalidInformationException("Name is required");
         }
-        if (expense.getCategory() == null
-                || expense.getCategory().isBlank()) {
+        if (
+            expense.getCategory() == null ||
+            expense.getCategory().isBlank()
+        ) {
             throw new InvalidInformationException("Category is required");
         }
-        if (expense.getAmount() == null
-                || !expense.getAmount().trim().matches(AMOUNT)) {
+        if (
+            expense.getAmount() == null ||
+            !expense.getAmount().trim().matches(AMOUNT)
+        ) {
             throw new InvalidInformationException(
-                    "Amount must be a valid number");
+                "Amount must be a valid number"
+            );
         }
         if (expense.getDate() == null) {
             throw new InvalidInformationException("Date is required");
         }
         if (expense.getDate().isAfter(LocalDateTime.now())) {
             throw new InvalidInformationException(
-                    "Date cannot be in the future");
+                "Date cannot be in the future"
+            );
         }
     }
 }

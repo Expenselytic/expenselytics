@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 @Lazy
 @Transactional
 public class DeleteExpenseDaoImpl implements DeleteExpenseDAO {
+
     private final ExpenseRepository expenseRepository;
 
     public DeleteExpenseDaoImpl(ExpenseRepository expenseRepository) {
@@ -20,10 +21,10 @@ public class DeleteExpenseDaoImpl implements DeleteExpenseDAO {
     @Override
     public void deleteExpense(Long id) {
         if (!expenseRepository.existsById(id)) {
-        throw new NotFoundException("Expense with ID " + id + " not found");
-    }
+            throw new NotFoundException(
+                "Expense with ID " + id + " not found"
+            );
+        }
         expenseRepository.deleteById(id);
-
     }
-
 }

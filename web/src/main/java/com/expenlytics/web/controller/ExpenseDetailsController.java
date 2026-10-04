@@ -10,16 +10,20 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(ApiRootController.ROOT + "/expenses")
-@CrossOrigin(origins = {"http://localhost:8080", "http://localhost:4200"})
+@CrossOrigin(
+    origins = { "http://localhost:8080", "http://localhost:4200" }
+)
 public class ExpenseDetailsController {
+
     private final GetExpense getExpense;
     private final UpdateExpense updateExpense;
     private final ExpenseModelAssembler assembler;
 
     public ExpenseDetailsController(
-            GetExpense getExpense,
-            UpdateExpense updateExpense,
-            ExpenseModelAssembler assembler) {
+        GetExpense getExpense,
+        UpdateExpense updateExpense,
+        ExpenseModelAssembler assembler
+    ) {
         this.getExpense = getExpense;
         this.updateExpense = updateExpense;
         this.assembler = assembler;
@@ -32,9 +36,11 @@ public class ExpenseDetailsController {
 
     @PutMapping("/{id}")
     public Mono<ExpenseModel> update(
-            @PathVariable Long id,
-            @RequestBody ExpenseRequest request) {
-        return updateExpense.updateExpense(id, request.toDomain())
-                .map(assembler::toModel);
+        @PathVariable Long id,
+        @RequestBody ExpenseRequest request
+    ) {
+        return updateExpense
+            .updateExpense(id, request.toDomain())
+            .map(assembler::toModel);
     }
 }

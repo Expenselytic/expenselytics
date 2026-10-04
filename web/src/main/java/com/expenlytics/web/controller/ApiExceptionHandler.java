@@ -9,14 +9,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
     @ExceptionHandler({
-            InvalidInformationException.class,
-            IllegalArgumentException.class
+        InvalidInformationException.class,
+        IllegalArgumentException.class,
     })
     ProblemDetail badRequest(RuntimeException exception) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                exception.getMessage());
+            HttpStatus.BAD_REQUEST,
+            exception.getMessage()
+        );
         detail.setTitle("Invalid request");
         return detail;
     }
@@ -24,8 +26,9 @@ public class ApiExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     ProblemDetail notFound(NotFoundException exception) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                exception.getMessage());
+            HttpStatus.NOT_FOUND,
+            exception.getMessage()
+        );
         detail.setTitle("Expense not found");
         return detail;
     }

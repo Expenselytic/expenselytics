@@ -1,12 +1,13 @@
 package com.expenlytics.web.controller;
 
-import com.expenlytics.web.model.ApiRootModel;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.expenlytics.web.model.ApiRootModel;
+import org.junit.jupiter.api.Test;
+
 public class ApiRootControllerTest {
+
     @Test
     void getReturnApiRootModelWithLinks() {
         ApiRootController controller = new ApiRootController();
@@ -14,16 +15,22 @@ public class ApiRootControllerTest {
         ApiRootModel model = controller.get().block();
 
         assertNotNull(model, "ApiRootModel should not be null");
-        assertEquals("1.0", model.apiVersion, "API version should be 1.0");
+        assertEquals(
+            "1.0",
+            model.apiVersion,
+            "API version should be 1.0"
+        );
         assertEquals("OK", model.status, "Status should be OK");
 
         assertEquals(
-                ApiRootController.ROOT,
-                model.getLink("self").orElseThrow().getHref(),
-                "Self link should match ROOT");
+            ApiRootController.ROOT,
+            model.getLink("self").orElseThrow().getHref(),
+            "Self link should match ROOT"
+        );
         assertEquals(
-                ApiRootController.ROOT + "/expenses",
-                model.getRequiredLink("addExpense").getHref(),
-                "AddExpense link should be present");
+            ApiRootController.ROOT + "/expenses",
+            model.getRequiredLink("addExpense").getHref(),
+            "AddExpense link should be present"
+        );
     }
 }

@@ -1,9 +1,9 @@
 package com.expenlytics.db.impl;
 
 import com.expenlytics.core.dao.AddExpenseDAO;
+import com.expenlytics.core.model.Expense;
 import com.expenlytics.db.entity.AddExpenseEntity;
 import com.expenlytics.db.repository.ExpenseRepository;
-import com.expenlytics.core.model.Expense;
 import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 @Lazy
 @Transactional
 public class AddExpenseDaoImpl implements AddExpenseDAO {
+
     private final ExpenseRepository expenseRepository;
 
     public AddExpenseDaoImpl(ExpenseRepository expenseRepository) {
@@ -23,10 +24,11 @@ public class AddExpenseDaoImpl implements AddExpenseDAO {
         AddExpenseEntity entity = new AddExpenseEntity(expense);
         AddExpenseEntity saved = expenseRepository.save(entity);
         return new Expense(
-                saved.getId(),
-                saved.getName(),
-                saved.getCategory(),
-                saved.getAmount(),
-                saved.getDate());
+            saved.getId(),
+            saved.getName(),
+            saved.getCategory(),
+            saved.getAmount(),
+            saved.getDate()
+        );
     }
 }

@@ -9,18 +9,19 @@ import reactor.core.scheduler.Schedulers;
 
 @Service
 @Lazy
-public class DeleteExpenseImpl implements DeleteExpense{
+public class DeleteExpenseImpl implements DeleteExpense {
 
     private final DeleteExpenseDAO deleteExpenseDAO;
 
     public DeleteExpenseImpl(DeleteExpenseDAO deleteExpenseDAO) {
         this.deleteExpenseDAO = deleteExpenseDAO;
     }
+
     public Mono<Void> deleteExpense(Long id) {
         this.validateId(id);
         return Mono.fromRunnable(() -> deleteExpenseDAO.deleteExpense(id))
-                .subscribeOn(Schedulers.boundedElastic()).then();
-
+            .subscribeOn(Schedulers.boundedElastic())
+            .then();
     }
 
     private void validateId(Long id) {

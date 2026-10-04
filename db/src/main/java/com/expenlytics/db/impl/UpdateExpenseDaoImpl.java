@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional
 public class UpdateExpenseDaoImpl implements UpdateExpenseDAO {
+
     private final ExpenseRepository repository;
 
     public UpdateExpenseDaoImpl(ExpenseRepository repository) {
@@ -19,16 +20,21 @@ public class UpdateExpenseDaoImpl implements UpdateExpenseDAO {
 
     @Override
     public Expense updateExpense(Long id, Expense expense) {
-        AddExpenseEntity entity = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        "Expense with ID " + id + " not found"));
+        AddExpenseEntity entity = repository
+            .findById(id)
+            .orElseThrow(() ->
+                new NotFoundException(
+                    "Expense with ID " + id + " not found"
+                )
+            );
         entity.updateFrom(expense);
         AddExpenseEntity saved = repository.save(entity);
         return new Expense(
-                saved.getId(),
-                saved.getName(),
-                saved.getCategory(),
-                saved.getAmount(),
-                saved.getDate());
+            saved.getId(),
+            saved.getName(),
+            saved.getCategory(),
+            saved.getAmount(),
+            saved.getDate()
+        );
     }
 }
