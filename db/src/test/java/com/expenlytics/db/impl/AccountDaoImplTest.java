@@ -26,7 +26,7 @@ class AccountDaoImplTest {
     @Configuration
     @EntityScan(basePackageClasses = UserEntity.class)
     @EnableJpaRepositories(basePackageClasses = UserRepository.class)
-    @Import({AccountDaoImpl.class, SpendingExperimentService.class})
+    @Import({ AccountDaoImpl.class, SpendingExperimentService.class })
     static class Config {}
 
     @Autowired
@@ -50,8 +50,15 @@ class AccountDaoImplTest {
     @Test
     void savingsPersistSeparatelyFromExpenses() {
         long expenseCount = expenses.count();
-        var saving = new com.expenlytics.db.entity.SavingEntity(new com.expenlytics.core.model.Expense(
-            0, "Emergency fund", "Savings", "150.25", java.time.LocalDateTime.now().minusMinutes(1)));
+        var saving = new com.expenlytics.db.entity.SavingEntity(
+            new com.expenlytics.core.model.Expense(
+                0,
+                "Emergency fund",
+                "Savings",
+                "150.25",
+                java.time.LocalDateTime.now().minusMinutes(1)
+            )
+        );
         var saved = savings.saveAndFlush(saving);
         var loaded = savings.findById(saved.getId()).orElseThrow();
         assertEquals("Emergency fund", loaded.getName());
@@ -66,40 +73,140 @@ class AccountDaoImplTest {
     jakarta.persistence.EntityManager entityManager;
 
     @Test
-    void experimentsPersistLinksPreventDoubleCountingAndRemoveDeletedDeposits() {
-        var request = new SpendingExperimentService.Request("Cook more", "Food", java.time.LocalDate.now().minusDays(7), 14);
+    void persistsLinksAndRemovesDeletedDeposits() {
+        var request = new SpendingExperimentService.Request(
+            "Cook more",
+            "Food",
+            java.time.LocalDate.now().minusDays(7),
+            14
+        );
         var first = experiments.create(request);
         var second = experiments.create(request);
-        var saving = savings.saveAndFlush(new com.expenlytics.db.entity.SavingEntity(new com.expenlytics.core.model.Expense(
-            0, "Fund", "Savings", "25", java.time.LocalDateTime.now())));
+        var saving = savings.saveAndFlush(
+            new com.expenlytics.db.entity.SavingEntity(
+                new com.expenlytics.core.model.Expense(
+                    0,
+                    "Fund",
+                    "Savings",
+                    "25",
+                    java.time.LocalDateTime.now()
+                )
+            )
+        );
         experiments.link(first.id(), saving.getId());
-        entityManager.flush(); entityManager.clear();
-        assertEquals(java.util.List.of(saving.getId()), experiments.list().stream().filter(e -> e.id().equals(first.id())).findFirst().orElseThrow().savingIds());
+        entityManager.flush();
+        entityManager.clear();
+        assertEquals(
+            java.util.List.of(saving.getId()),
+            experiments
+                .list()
+                .stream()
+                .filter(e -> e.id().equals(first.id()))
+                .findFirst()
+                .orElseThrow()
+                .savingIds()
+        );
         experiments.link(first.id(), saving.getId());
         experiments.unlink(first.id(), saving.getId());
         entityManager.flush();
         experiments.link(second.id(), saving.getId());
-        entityManager.flush(); entityManager.clear();
-        savings.deleteById(saving.getId()); savings.flush(); entityManager.clear();
-        assertTrue(experiments.list().stream().allMatch(e -> e.savingIds().isEmpty()));
+        entityManager.flush();
+        entityManager.clear();
+        savings.deleteById(saving.getId());
+        savings.flush();
+        entityManager.clear();
+        assertTrue(
+            experiments
+                .list()
+                .stream()
+                .allMatch(e -> e.savingIds().isEmpty())
+        );
     }
 
     @Test
     void rejectsInvalidExperiments() {
-        assertThrows(IllegalArgumentException.class, () -> experiments.create(
-            new SpendingExperimentService.Request("", "Food", java.time.LocalDate.now(), 0)));
+        assertThrows(IllegalArgumentException.class, () ->
+            experiments.create(
+                new SpendingExperimentService.Request(
+                    "",
+                    "Food",
+                    java.time.LocalDate.now(),
+                    0
+                )
+            )
+        );
     }
 
     @Test
     void rejectsAttributingOneDepositToTwoExperiments() {
-        var request = new SpendingExperimentService.Request("Cook more", "Food", java.time.LocalDate.now().minusDays(7), 14);
+        var request = new SpendingExperimentService.Request(
+            "Cook more",
+            "Food",
+            java.time.LocalDate.now().minusDays(7),
+            14
+        );
         var first = experiments.create(request);
         var second = experiments.create(request);
-        var saving = savings.saveAndFlush(new com.expenlytics.db.entity.SavingEntity(new com.expenlytics.core.model.Expense(
-            0, "Fund", "Savings", "25", java.time.LocalDateTime.now())));
+        var saving = savings.saveAndFlush(
+            new com.expenlytics.db.entity.SavingEntity(
+                new com.expenlytics.core.model.Expense(
+                    0,
+                    "Fund",
+                    "Savings",
+                    "25",
+                    java.time.LocalDateTime.now()
+                )
+            )
+        );
         experiments.link(first.id(), saving.getId());
-        entityManager.flush(); entityManager.clear();
-        assertThrows(IllegalArgumentException.class, () -> experiments.link(second.id(), saving.getId()));
+        entityManager.flush();
+        entityManager.clear();
+        assertThrows(IllegalArgumentException.class, () ->
+            experiments.link(second.id(), saving.getId())
+        );
+    }
+
+    @Test
+    void deletingExperimentPreservesDepositsAndAllowsRelinking() {
+        var request = new SpendingExperimentService.Request(
+            "Cook more",
+            "Food",
+            java.time.LocalDate.now().minusDays(7),
+            14
+        );
+        var first = experiments.create(request);
+        var second = experiments.create(request);
+        var saving = savings.saveAndFlush(
+            new com.expenlytics.db.entity.SavingEntity(
+                new com.expenlytics.core.model.Expense(
+                    0,
+                    "Fund",
+                    "Savings",
+                    "25",
+                    java.time.LocalDateTime.now()
+                )
+            )
+        );
+        experiments.link(first.id(), saving.getId());
+        entityManager.flush();
+        entityManager.clear();
+        experiments.delete(first.id());
+        entityManager.flush();
+        entityManager.clear();
+        assertEquals(1, experiments.list().size());
+        assertEquals(second.id(), experiments.list().get(0).id());
+        assertEquals(
+            "25",
+            savings.findById(saving.getId()).orElseThrow().getAmount()
+        );
+        experiments.delete(first.id());
+        experiments.link(second.id(), saving.getId());
+        entityManager.flush();
+        entityManager.clear();
+        assertEquals(
+            java.util.List.of(saving.getId()),
+            experiments.list().get(0).savingIds()
+        );
     }
 
     private final DeviceInfo device = new DeviceInfo(
@@ -156,28 +263,61 @@ class AccountDaoImplTest {
     @Test
     void logoutRecordsTimeOnlyOnce() {
         var before = Instant.now();
-        var profile = dao.register("Jane", "logout@example.com", "hash", device,
-            "e".repeat(64), before.plusSeconds(600));
-        assertNull(users.findById(profile.userId()).orElseThrow().lastLogin);
+        var profile = dao.register(
+            "Jane",
+            "logout@example.com",
+            "hash",
+            device,
+            "e".repeat(64),
+            before.plusSeconds(600)
+        );
+        assertNull(
+            users.findById(profile.userId()).orElseThrow().lastLogin
+        );
         dao.deleteSession("e".repeat(64));
-        var ended = users.findById(profile.userId()).orElseThrow().lastLogin;
+        var ended = users
+            .findById(profile.userId())
+            .orElseThrow()
+            .lastLogin;
         assertNotNull(ended);
         assertFalse(ended.isBefore(before));
         assertFalse(ended.isAfter(Instant.now()));
         dao.deleteSession("e".repeat(64));
-        assertEquals(ended, users.findById(profile.userId()).orElseThrow().lastLogin);
+        assertEquals(
+            ended,
+            users.findById(profile.userId()).orElseThrow().lastLogin
+        );
     }
 
     @Test
-    void lateLogoutRecordsExpiryAndOldSessionsCannotMoveTimestampBackwards() {
-        var expiry = Instant.now().minusSeconds(100).truncatedTo(java.time.temporal.ChronoUnit.MICROS);
-        var profile = dao.register("Jane", "expiry@example.com", "hash", device,
-            "e".repeat(64), expiry);
+    void recordsExpiryWithoutMovingTimestampBackwards() {
+        var expiry = Instant.now()
+            .minusSeconds(100)
+            .truncatedTo(java.time.temporal.ChronoUnit.MICROS);
+        var profile = dao.register(
+            "Jane",
+            "expiry@example.com",
+            "hash",
+            device,
+            "e".repeat(64),
+            expiry
+        );
         dao.deleteSession("e".repeat(64));
-        assertEquals(expiry, users.findById(profile.userId()).orElseThrow().lastLogin);
-        dao.recordLogin(profile.userId(), device, "f".repeat(64), expiry.minusSeconds(50));
+        assertEquals(
+            expiry,
+            users.findById(profile.userId()).orElseThrow().lastLogin
+        );
+        dao.recordLogin(
+            profile.userId(),
+            device,
+            "f".repeat(64),
+            expiry.minusSeconds(50)
+        );
         new AccountMaintenance(sessions, devices, 100, 0).cleanup();
-        assertEquals(expiry, users.findById(profile.userId()).orElseThrow().lastLogin);
+        assertEquals(
+            expiry,
+            users.findById(profile.userId()).orElseThrow().lastLogin
+        );
         assertEquals(0, sessions.count());
     }
 

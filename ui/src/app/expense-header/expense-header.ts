@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-expense-header',
   imports: [],
   templateUrl: './expense-header.html',
-  styleUrl: './expense-header.css'
+  styleUrl: './expense-header.css',
 })
-export class ExpenseHeader {
-
-}
+export class ExpenseHeader {}

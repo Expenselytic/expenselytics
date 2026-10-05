@@ -6,7 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "check:columns": "python3 ../scripts/check_columns.py",
+    "prebuild": "npm run check:columns",
+    "pretest": "npm run check:columns"
   },
   "prettier": {
     "overrides": [
@@ -16,7 +19,9 @@
           "parser": "angular"
         }
       }
-    ]
+    ],
+    "printWidth": 74,
+    "singleQuote": true
   },
   "private": true,
   "dependencies": {

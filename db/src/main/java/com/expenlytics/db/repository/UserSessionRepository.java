@@ -22,17 +22,28 @@ public interface UserSessionRepository
     );
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("update UserEntity u set u.lastLogin = :endedAt where u.id = :userId " +
-        "and (u.lastLogin is null or u.lastLogin < :endedAt)")
-    void recordEnd(@Param("userId") Long userId, @Param("endedAt") Instant endedAt);
+    @Query(
+        "update UserEntity u set u.lastLogin = " +
+            ":endedAt where u.id = :userId " +
+            "and (u.lastLogin is null or u.lastLogin < :endedAt)"
+    )
+    void recordEnd(
+        @Param("userId") Long userId,
+        @Param("endedAt") Instant endedAt
+    );
 
     @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
-    @Query("select s from UserSessionEntity s join fetch s.user where s.tokenHash = :hash")
+    @Query(
+        "select s from UserSessionEntity s join " +
+            "fetch s.user where s.tokenHash = :hash"
+    )
     Optional<UserSessionEntity> findForEnd(@Param("hash") String hash);
 
     default void endSession(String hash, Instant now) {
         findForEnd(hash).ifPresent(session -> {
-            var endedAt = session.expiresAt.isBefore(now) ? session.expiresAt : now;
+            var endedAt = session.expiresAt.isBefore(now)
+                ? session.expiresAt
+                : now;
             recordEnd(session.user.id, endedAt);
             deleteToken(hash);
         });

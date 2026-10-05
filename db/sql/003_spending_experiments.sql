@@ -9,6 +9,8 @@ CREATE TABLE spending_experiment (
 CREATE TABLE experiment_saving (
     saving_id BIGINT NOT NULL PRIMARY KEY,
     experiment_id BIGINT NOT NULL,
-    CONSTRAINT fk_experiment_saving FOREIGN KEY (saving_id) REFERENCES saving(id) ON DELETE CASCADE,
-    CONSTRAINT fk_saving_experiment FOREIGN KEY (experiment_id) REFERENCES spending_experiment(id)
+    CONSTRAINT fk_experiment_saving FOREIGN KEY (saving_id)
+        REFERENCES saving(id) ON DELETE CASCADE,
+    CONSTRAINT fk_saving_experiment FOREIGN KEY (experiment_id)
+        REFERENCES spending_experiment(id)
 );

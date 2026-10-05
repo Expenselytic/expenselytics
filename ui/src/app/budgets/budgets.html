@@ -1,0 +1,95 @@
+<section class="budget-section" aria-labelledby="budget-title">
+  <header>
+    <div>
+      <p class="eyebrow">A PLAN FOR EVERY DOLLAR</p>
+      <h2 id="budget-title">Spend with a little breathing room.</h2>
+      <p>Set your limits. See what’s left. Make the month your own.</p>
+    </div>
+    <label class="month">Budget month
+      <input type="month" [(ngModel)]="month" (change)="load()"
+        [disabled]="loading || busy" required>
+    </label>
+  </header>
+  <p *ngIf="loading" role="status">Loading your budgets…</p>
+  <button *ngIf="failed" type="button" (click)="load()">Retry</button>
+  <div class="empty" *ngIf="!loading && !failed && !budgets.length">
+    <span aria-hidden="true">◎</span>
+    <h3>A little intention goes a long way.</h3>
+    <p>Start with a monthly limit, then add categories if you like.</p>
+  </div>
+  <div class="budget-grid" *ngIf="!loading && !failed">
+    <article *ngFor="let card of cards"
+      [class.near]="card.status === 'near'"
+      [class.over]="card.status === 'over'"
+      [class.overall]="!card.budget.category">
+      <div class="card-top">
+        <h3>{{ card.budget.category || 'Overall monthly budget' }}</h3>
+        <span class="badge">{{ card.label }}</span>
+      </div>
+      <strong class="remaining">
+        {{ (card.remaining < 0 ? -card.remaining
+          : card.remaining) | currency }}
+      </strong>
+      <p class="remaining-label">
+        {{ card.remaining < 0 ? 'over your limit' : 'left to spend' }}
+      </p>
+      <progress [value]="card.bar" max="100"
+        [attr.aria-label]="(card.budget.category || 'Overall')
+          + ' budget used'">
+      </progress>
+      <div class="figures">
+        <span>{{ card.spent | currency }} spent</span>
+        <span>of {{ card.budget.amount | currency }}</span>
+      </div>
+      <p class="daily" *ngIf="!card.budget.category">
+        {{ card.daily === null ? 'This month has ended.'
+          : (card.daily | currency) + ' per day for the rest of the month'
+        }}
+      </p>
+      <p class="alert" *ngIf="card.status !== 'good'" role="status">
+        {{ card.status === 'over'
+          ? 'Your limit is reached. Review spending before adding more.'
+          : 'You’ve used at least 80% of this budget.' }}
+      </p>
+      <div class="card-actions">
+        <button type="button" (click)="edit(card.budget)"
+          [disabled]="busy">Edit limit</button>
+        <button type="button" (click)="remove(card.budget)"
+          [disabled]="busy"
+          [attr.aria-label]="'Remove '
+            + (card.budget.category || 'overall') + ' budget'">
+          Remove
+        </button>
+      </div>
+    </article>
+  </div>
+  <form #form="ngForm" (ngSubmit)="form.valid && save()">
+    <div class="form-title">
+      <h3>Give your spending a plan.</h3>
+      <p>Saving an existing category updates its limit for this month.</p>
+    </div>
+    <label>Budget for
+      <select name="category" [(ngModel)]="category" [disabled]="busy">
+        <option value="">Overall monthly budget</option>
+        <option *ngFor="let item of categories" [value]="item">
+          {{ item }}
+        </option>
+      </select>
+    </label>
+    <label>Monthly limit ($)
+      <input name="amount" type="number" [(ngModel)]="amount"
+        min="0.01" max="9999999999.99" step="0.01"
+        placeholder="e.g. 1500" [disabled]="busy" required>
+    </label>
+    <button class="primary" type="submit"
+      [disabled]="busy || loading || failed || form.invalid">
+      {{ busy ? 'Saving…' : 'Save budget →' }}
+    </button>
+  </form>
+  <p class="note">
+    Based on expenses in this workspace. Category limits sit within
+    your overall budget; they are not added to it. Alerts appear here
+    at 80% and 100%. Budgets apply only to the selected month.
+  </p>
+  <p *ngIf="message" role="status" class="message">{{ message }}</p>
+</section>

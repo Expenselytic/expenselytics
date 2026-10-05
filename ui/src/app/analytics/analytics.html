@@ -1,18 +1,127 @@
-<div class="controls"><div><p class="eyebrow">YOUR MONEY OVER TIME</p><h3>Workspace insights</h3></div><label>Time period<select [(ngModel)]="months"><option [ngValue]="3">Last 3 months</option><option [ngValue]="6">Last 6 months</option><option [ngValue]="12">Last 12 months</option></select></label></div>
-<div class="summary"><p>Expenses <strong>{{ spent | currency }}</strong></p><p>Savings deposits <strong>{{ saved | currency }}</strong></p></div>
-<p *ngIf="!spent && !saved" class="empty">No activity in this period. Add an expense or saving below to start your charts.</p>
+<div class="controls">
+  <div>
+    <p class="eyebrow">YOUR MONEY OVER TIME</p>
+    <h3>Workspace insights</h3>
+  </div>
+  <label
+    >Time period<select [(ngModel)]="months">
+      <option [ngValue]="3">Last 3 months</option>
+      <option [ngValue]="6">Last 6 months</option>
+      <option [ngValue]="12">Last 12 months</option>
+    </select></label
+  >
+</div>
+<div class="summary">
+  <p>
+    Expenses <strong>{{ spent | currency }}</strong>
+  </p>
+  <p>
+    Savings deposits <strong>{{ saved | currency }}</strong>
+  </p>
+</div>
+<p *ngIf="!spent && !saved" class="empty">
+  No activity in this period. Add an expense or saving below to start your
+  charts.
+</p>
 <div class="graphs">
-  <article class="wide"><h4>Expenses vs. savings</h4><p class="legend"><span>● Expenses</span><span class="saving-label">● Savings</span></p>
-    <div class="bars" role="img" aria-label="Monthly expenses and savings; exact values in the table below"><div class="month" *ngFor="let row of trend"><div class="pair"><div class="bar expense" [style.height.%]="row.expenses / max * 100" [title]="row.label + ' expenses: ' + (row.expenses | currency)"></div><div class="bar saving" [style.height.%]="row.savings / max * 100" [title]="row.label + ' savings: ' + (row.savings | currency)"></div></div><small>{{ row.label }}</small></div></div>
+  <article class="wide">
+    <h4>Expenses vs. savings</h4>
+    <p class="legend">
+      <span>● Expenses</span><span class="saving-label">● Savings</span>
+    </p>
+    <div
+      class="bars"
+      role="img"
+      aria-label="Monthly spending and savings; values in the table below"
+    >
+      <div class="month" *ngFor="let row of trend; trackBy: trackMonth">
+        <div class="pair">
+          <div
+            class="bar expense"
+            [style.height.%]="(row.expenses / max) * 100"
+            [title]="
+              row.label + ' expenses: ' + (row.expenses | currency)
+            "
+          ></div>
+          <div
+            class="bar saving"
+            [style.height.%]="(row.savings / max) * 100"
+            [title]="row.label + ' savings: ' + (row.savings | currency)"
+          ></div>
+        </div>
+        <small>{{ row.label }}</small>
+      </div>
+    </div>
   </article>
-  <article><div class="controls"><h4>By category</h4><label>Show<select [(ngModel)]="breakdown"><option value="expenses">Expenses</option><option value="savings">Savings</option></select></label></div>
-    <div class="donut" [style.background]="donut" role="img" [attr.aria-label]="breakdown + ' by category; values listed below'"></div>
-    <p *ngIf="!categories.length" class="empty">No {{ breakdown }} in this period.</p>
-    <ul><li *ngFor="let row of categories"><span><i [style.background]="row.color"></i>{{ row.name }}</span><strong>{{ row.amount | currency }}</strong></li></ul>
+  <article>
+    <div class="controls">
+      <h4>By category</h4>
+      <label
+        >Show<select [(ngModel)]="breakdown">
+          <option value="expenses">Expenses</option>
+          <option value="savings">Savings</option>
+        </select></label
+      >
+    </div>
+    <div
+      class="donut"
+      [style.background]="donut"
+      role="img"
+      [attr.aria-label]="breakdown + ' by category; values listed below'"
+    ></div>
+    <p *ngIf="!categories.length" class="empty">
+      No {{ breakdown }} in this period.
+    </p>
+    <ul>
+      <li *ngFor="let row of categories; trackBy: trackCategory">
+        <span><i [style.background]="row.color"></i>{{ row.name }}</span
+        ><strong>{{ row.amount | currency }}</strong>
+      </li>
+    </ul>
   </article>
-  <article><h4>Savings progress</h4><p>Cumulative deposits within the selected period</p><strong>{{ saved | currency }}</strong>
-    <svg viewBox="0 0 600 200" role="img" aria-label="Cumulative savings deposits; monthly amounts in the table below"><path d="M20 20 V180 H580" fill="none" stroke="#dbe3dd"/><polyline [attr.points]="cumulativePoints" fill="none" stroke="#315c50" stroke-width="4" stroke-linejoin="round"/></svg>
-    <div class="axis"><span>{{ trend[0].label }}</span><span>{{ trend[trend.length - 1].label }}</span></div>
+  <article>
+    <h4>Savings progress</h4>
+    <p>Cumulative deposits within the selected period</p>
+    <strong>{{ saved | currency }}</strong>
+    <svg
+      viewBox="0 0 600 200"
+      role="img"
+      aria-label="Cumulative deposits; monthly values in the table below"
+    >
+      <path d="M20 20 V180 H580" fill="none" stroke="#dbe3dd" />
+      <polyline
+        [attr.points]="cumulativePoints"
+        fill="none"
+        stroke="#315c50"
+        stroke-width="4"
+        stroke-linejoin="round"
+      />
+    </svg>
+    <div class="axis">
+      <span>{{ trend[0].label }}</span
+      ><span>{{ trend[trend.length - 1].label }}</span>
+    </div>
   </article>
 </div>
-<details><summary>View monthly amounts</summary><table><caption>Monthly activity for the selected period</caption><thead><tr><th scope="col">Month</th><th scope="col">Expenses</th><th scope="col">Savings deposits</th></tr></thead><tbody><tr *ngFor="let row of trend"><th scope="row">{{ row.label }}</th><td>{{ row.expenses | currency }}</td><td>{{ row.savings | currency }}</td></tr></tbody></table></details>
+<details>
+  <summary>View monthly amounts</summary>
+  <table>
+    <caption>
+      Monthly activity for the selected period
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Month</th>
+        <th scope="col">Expenses</th>
+        <th scope="col">Savings deposits</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of trend; trackBy: trackMonth">
+        <th scope="row">{{ row.label }}</th>
+        <td>{{ row.expenses | currency }}</td>
+        <td>{{ row.savings | currency }}</td>
+      </tr>
+    </tbody>
+  </table>
+</details>

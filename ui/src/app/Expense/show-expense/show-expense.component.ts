@@ -14,14 +14,14 @@ interface RowData {
   standalone: true,
   imports: [AgGridAngular],
   templateUrl: './show-expense.html',
-  styleUrls: ['./show-expense.css']
+  styleUrls: ['./show-expense.css'],
 })
 export class ShowExpense {
   columnDefs: ColDef<RowData>[] = [
     { field: 'country', chartDataType: 'category' },
     { field: 'gold', chartDataType: 'series' },
     { field: 'silver', chartDataType: 'series' },
-    { field: 'bronze', chartDataType: 'series' }
+    { field: 'bronze', chartDataType: 'series' },
   ];
 
   rowData: RowData[] = [
@@ -29,19 +29,19 @@ export class ShowExpense {
     { country: 'UK', gold: 40, silver: 25, bronze: 30 },
     { country: 'China', gold: 60, silver: 40, bronze: 35 },
     { country: 'India', gold: 20, silver: 25, bronze: 30 },
-    { country: 'Germany', gold: 35, silver: 20, bronze: 25 }
+    { country: 'Germany', gold: 35, silver: 20, bronze: 25 },
   ];
 
   defaultColDef: ColDef<RowData> = {
     editable: true,
     sortable: true,
     filter: true,
-    resizable: true
+    resizable: true,
   };
 
   gridOptions: GridOptions<RowData> = {
     enableCharts: true,
     enableRangeSelection: true,
-    popupParent: document.body
+    popupParent: document.body,
   };
 }

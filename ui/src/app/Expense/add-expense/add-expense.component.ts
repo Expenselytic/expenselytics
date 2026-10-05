@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-add-expense',
   imports: [],
   templateUrl: './add-expense.html',
-  styleUrl: './add-expense.css'
+  styleUrl: './add-expense.css',
 })
-export class AddExpense {
-
-}
+export class AddExpense {}

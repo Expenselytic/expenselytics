@@ -46,7 +46,8 @@ public class AccountMaintenance {
     public void cleanup() {
         var page = PageRequest.of(0, batchSize);
         var expired = sessions.findExpiredIds(Instant.now(), page);
-        for (String hash : expired) sessions.endSession(hash, Instant.now());
+        for (String hash : expired)
+            sessions.endSession(hash, Instant.now());
         // Device-history deletion is opt-in; expiration of sessions is
         // always enforced on reads.
         if (retentionDays > 0) {

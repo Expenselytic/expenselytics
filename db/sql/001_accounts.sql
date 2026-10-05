@@ -20,7 +20,8 @@ CREATE TABLE user_device_info (
     created_at DATETIME(6) NOT NULL,
     INDEX idx_device_user_created (user_id, created_at),
     INDEX idx_device_created (created_at),
-    CONSTRAINT fk_device_user FOREIGN KEY (user_id) REFERENCES `user` (user_id)
+    CONSTRAINT fk_device_user FOREIGN KEY (user_id)
+        REFERENCES `user` (user_id)
 );
 CREATE TABLE user_session (
     token_hash VARCHAR(64) NOT NULL PRIMARY KEY,
@@ -28,5 +29,6 @@ CREATE TABLE user_session (
     expires_at DATETIME(6) NOT NULL,
     INDEX idx_session_expiry (expires_at),
     INDEX idx_session_user (user_id),
-    CONSTRAINT fk_session_user FOREIGN KEY (user_id) REFERENCES `user` (user_id)
+    CONSTRAINT fk_session_user FOREIGN KEY (user_id)
+        REFERENCES `user` (user_id)
 );

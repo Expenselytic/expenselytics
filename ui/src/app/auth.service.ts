@@ -1,11 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { map, Subject, tap } from 'rxjs';
 import { AUTH_API_ROOT } from './api/api-paths';
 import { profileFromResponse } from './api/profile';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  readonly signedOut = new Subject<void>();
+
+  invalidate(): void {
+    this.signedOut.next();
+  }
+
   constructor(private readonly http: HttpClient) {}
 
   current() {
@@ -30,8 +36,9 @@ export class AuthService {
   }
 
   logout() {
-    return this.http
-      .post(`${AUTH_API_ROOT}/logout`, {})
-      .pipe(map(() => undefined));
+    return this.http.post(`${AUTH_API_ROOT}/logout`, {}).pipe(
+      tap(() => this.invalidate()),
+      map(() => undefined),
+    );
   }
 }

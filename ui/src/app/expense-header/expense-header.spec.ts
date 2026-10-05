@@ -8,9 +8,8 @@ describe('ExpenseHeader', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ExpenseHeader]
-    })
-    .compileComponents();
+      imports: [ExpenseHeader],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ExpenseHeader);
     component = fixture.componentInstance;

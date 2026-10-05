@@ -29,7 +29,7 @@ class AccountControllerTest {
             reactor.core.scheduler.Schedulers.immediate()
         )
     )
-        .webFilter(new BearerTokenWebFilter("admin-token"))
+        .webFilter(new BearerTokenWebFilter(accounts))
         .build();
 
     @Test

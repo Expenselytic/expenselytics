@@ -1,12 +1,15 @@
 package com.expenlytics.web.security;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+import com.expenlytics.core.exception.AccountException;
+import com.expenlytics.core.model.AccountProfile;
+import com.expenlytics.core.usecase.AccountService;
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.http.server.reactive.
     MockServerHttpRequest;
@@ -15,72 +18,126 @@ import reactor.core.publisher.Mono;
 
 class BearerTokenWebFilterTest {
 
+    private final AccountService accounts = mock(AccountService.class);
     private final BearerTokenWebFilter filter = new BearerTokenWebFilter(
-        "test-token"
+        accounts
     );
 
     @Test
+    void rejectsAnonymousFinancialReadsAndWrites() {
+        for (String path : new String[] {
+            "/api/v1/expenses",
+            "/api/v1/savings",
+            "/api/v1/experiments",
+            "/api/v1/getExpense",
+            "/api/v1/expenses/1",
+        }) {
+            for (HttpMethod method : new HttpMethod[] {
+                HttpMethod.GET,
+                HttpMethod.POST,
+                HttpMethod.DELETE,
+                HttpMethod.PUT,
+                HttpMethod.HEAD,
+            }) {
+                var exchange = MockServerWebExchange.from(
+                    MockServerHttpRequest.method(method, path).build()
+                );
+                AtomicBoolean called = new AtomicBoolean();
+                filter
+                    .filter(exchange, ignored -> {
+                        called.set(true);
+                        return Mono.empty();
+                    })
+                    .block();
+                assertFalse(called.get());
+                assertEquals(
+                    401,
+                    exchange.getResponse().getStatusCode().value()
+                );
+                assertEquals(
+                    "no-store",
+                    exchange.getResponse().getHeaders().getCacheControl()
+                );
+            }
+        }
+    }
+
+    @Test
     void allowsBrowserSessionAndRejectsExpiredSession() {
-        var accounts = org.mockito.Mockito.mock(com.expenlytics.core.usecase.AccountService.class);
-        var sessionFilter = new BearerTokenWebFilter("test-token", accounts);
-        org.mockito.Mockito.when(accounts.current("session")).thenReturn(
-            new com.expenlytics.core.model.AccountProfile(1L, "Jane", "jane@example.com", java.time.Instant.now()));
-        var request = MockServerHttpRequest.post("/api/v1/savings")
-            .cookie(new org.springframework.http.HttpCookie("expenselytics_session", "session")).build();
+        when(accounts.current("session")).thenReturn(
+            new AccountProfile(
+                1L,
+                "Jane",
+                "jane@example.com",
+                Instant.now()
+            )
+        );
+        var request = MockServerHttpRequest.get("/api/v1/savings")
+            .cookie(new HttpCookie("expenselytics_session", "session"))
+            .build();
         AtomicBoolean called = new AtomicBoolean();
-        sessionFilter.filter(MockServerWebExchange.from(request), ignored -> {
-            called.set(true); return Mono.empty();
-        }).block();
+        filter
+            .filter(MockServerWebExchange.from(request), ignored -> {
+                called.set(true);
+                return Mono.empty();
+            })
+            .block();
         assertTrue(called.get());
-        org.mockito.Mockito.when(accounts.current("session")).thenThrow(
-            new com.expenlytics.core.exception.AccountException(
-                com.expenlytics.core.exception.AccountException.Reason.UNAUTHORIZED, "Expired"));
+        when(accounts.current("session")).thenThrow(
+            new AccountException(
+                AccountException.Reason.UNAUTHORIZED,
+                "Expired"
+            )
+        );
         called.set(false);
         var expired = MockServerWebExchange.from(request);
-        sessionFilter.filter(expired, ignored -> { called.set(true); return Mono.empty(); }).block();
+        filter
+            .filter(expired, ignored -> {
+                called.set(true);
+                return Mono.empty();
+            })
+            .block();
         assertFalse(called.get());
         assertEquals(401, expired.getResponse().getStatusCode().value());
     }
 
     @Test
-    void rejectsMutationWithoutToken() {
-        var request = MockServerHttpRequest.method(
-            HttpMethod.POST,
-            "/api/v1/expenses"
-        ).build();
-        var exchange = MockServerWebExchange.from(request);
-        AtomicBoolean called = new AtomicBoolean();
-
+    void sharedBearerTokenCannotBypassLogin() {
+        var exchange = MockServerWebExchange.from(
+            MockServerHttpRequest.get("/api/v1/expenses")
+                .header("Authorization", "Bearer dev-only-token")
+                .build()
+        );
         filter
             .filter(exchange, ignored -> {
-                called.set(true);
+                fail("Bearer token must not bypass account login");
                 return Mono.empty();
             })
             .block();
-
         assertEquals(401, exchange.getResponse().getStatusCode().value());
-        assertFalse(called.get());
     }
 
     @Test
-    void allowsMutationWithValidToken() {
-        var exchange = MockServerWebExchange.from(
-            MockServerHttpRequest.method(
-                HttpMethod.DELETE,
-                "/api/v1/expenses/1"
-            )
-                .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")
-                .build()
-        );
-        AtomicBoolean called = new AtomicBoolean();
-
-        filter
-            .filter(exchange, ignored -> {
-                called.set(true);
-                return Mono.empty();
-            })
-            .block();
-
-        assertTrue(called.get());
+    void permitsLoginAndPublicPages() {
+        for (String path : new String[] {
+            "/",
+            "/login",
+            "/workspace",
+            "/api/v1",
+            "/api/v1/auth/login",
+            "/api/v1/auth/signup",
+        }) {
+            AtomicBoolean called = new AtomicBoolean();
+            var exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get(path).build()
+            );
+            filter
+                .filter(exchange, ignored -> {
+                    called.set(true);
+                    return Mono.empty();
+                })
+                .block();
+            assertTrue(called.get());
+        }
     }
 }

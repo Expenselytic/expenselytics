@@ -35,6 +35,29 @@ class AccountServiceTest {
     );
 
     @Test
+    void acceptsEightCharacterSignupPassword() {
+        var credentials = new AccountCredentials(
+            "Jane",
+            "eight@example.com",
+            "12345678"
+        );
+        var result = service.authenticate(credentials, true, device);
+        assertEquals("eight@example.com", result.profile().email());
+    }
+
+    @Test
+    void rejectsSevenCharacterSignupPassword() {
+        var credentials = new AccountCredentials(
+            "Jane",
+            "short@example.com",
+            "1234567"
+        );
+        assertThrows(AccountException.class, () ->
+            service.authenticate(credentials, true, device)
+        );
+    }
+
+    @Test
     void signupHashesPasswordNormalizesEmailAndLinksEvent() {
         var result = service.authenticate(input, true, device);
         assertEquals("Jane", result.profile().name());
@@ -116,6 +139,22 @@ class AccountServiceTest {
     }
 
     @Test
+    void eightCharacterPasswordSupportsSignupAndLogin() {
+        var credentials = new AccountCredentials(
+            "Jane",
+            "jane@example.com",
+            "eight123"
+        );
+        var signup = service.authenticate(credentials, true, device);
+        var login = service.authenticate(credentials, false, device);
+        assertEquals(signup.profile(), login.profile());
+        assertTrue(
+            passwords.matches("eight123", dao.user.passwordHash())
+        );
+        assertEquals(2, dao.events);
+    }
+
+    @Test
     void shortPasswordDoesNotCreateAnAccount() {
         assertEquals(
             INVALID_INPUT,
@@ -124,7 +163,7 @@ class AccountServiceTest {
                     new AccountCredentials(
                         "Jane",
                         "jane@example.com",
-                        "short"
+                        "1234567"
                     ),
                     true,
                     device

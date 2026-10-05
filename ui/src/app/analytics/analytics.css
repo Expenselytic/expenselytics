@@ -1,1 +1,187 @@
-:host{display:block;margin-bottom:28px}.controls{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}h3{margin:0;font-size:26px}h4{margin:0 0 15px;font-size:18px}.eyebrow{font-size:11px;letter-spacing:1.5px;color:#648078}label{font-size:12px;display:grid;gap:6px}select{padding:9px;border:1px solid #dbe3dd;border-radius:8px;background:white;color:#20312d}.summary{display:flex;gap:35px;margin:20px 0}.summary p{margin:0;color:#53625d}.summary strong{display:block;font-size:28px;margin-top:6px;color:#20312d}.graphs{display:grid;grid-template-columns:1fr 1fr;gap:18px}article{padding:22px;background:white;border-radius:18px;min-width:0}.wide{grid-column:1/-1}.legend{display:flex;gap:20px;color:#315c50}.saving-label{color:#6f8e35}.bars{display:flex;gap:10px;overflow-x:auto;padding-top:10px}.month{flex:1;min-width:44px;text-align:center}.pair{height:180px;display:flex;align-items:end;justify-content:center;gap:5px;border-bottom:1px solid #dbe3dd}.bar{width:25px;border-radius:5px 5px 0 0}.expense{background:#315c50}.saving{background:#9fc45c}small{display:block;font-size:10px;margin-top:8px}.donut{width:150px;height:150px;border-radius:50%;margin:22px auto;position:relative}.donut:after{content:'';position:absolute;inset:33px;background:white;border-radius:50%}ul{list-style:none;padding:0}li{display:flex;justify-content:space-between;gap:12px;margin:12px 0;font-size:13px}i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}svg{width:100%;margin-top:18px}.axis{display:flex;justify-content:space-between;font-size:12px}article p,.empty{color:#64756e;font-size:13px;line-height:1.6}details{margin:18px 0}summary{cursor:pointer;padding:10px 0}table{width:100%;border-collapse:collapse;background:white}caption{text-align:left;padding:12px}th,td{text-align:left;padding:12px;border-bottom:1px solid #edf1ea}@media(max-width:600px){.graphs{grid-template-columns:1fr}.summary{gap:20px}.summary strong{font-size:23px}}
+:host {
+  display: block;
+  margin-bottom: 28px;
+}
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+h3 {
+  margin: 0;
+  font-size: 26px;
+}
+h4 {
+  margin: 0 0 15px;
+  font-size: 18px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: #648078;
+}
+label {
+  font-size: 12px;
+  display: grid;
+  gap: 6px;
+}
+select {
+  padding: 9px;
+  border: 1px solid #dbe3dd;
+  border-radius: 8px;
+  background: white;
+  color: #20312d;
+}
+.summary {
+  display: flex;
+  gap: 35px;
+  margin: 20px 0;
+}
+.summary p {
+  margin: 0;
+  color: #53625d;
+}
+.summary strong {
+  display: block;
+  font-size: 28px;
+  margin-top: 6px;
+  color: #20312d;
+}
+.graphs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+article {
+  padding: 22px;
+  background: white;
+  border-radius: 18px;
+  min-width: 0;
+}
+.wide {
+  grid-column: 1/-1;
+}
+.legend {
+  display: flex;
+  gap: 20px;
+  color: #315c50;
+}
+.saving-label {
+  color: #6f8e35;
+}
+.bars {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-top: 10px;
+}
+.month {
+  flex: 1;
+  min-width: 44px;
+  text-align: center;
+}
+.pair {
+  height: 180px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 5px;
+  border-bottom: 1px solid #dbe3dd;
+}
+.bar {
+  width: 25px;
+  border-radius: 5px 5px 0 0;
+}
+.expense {
+  background: #315c50;
+}
+.saving {
+  background: #9fc45c;
+}
+small {
+  display: block;
+  font-size: 10px;
+  margin-top: 8px;
+}
+.donut {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin: 22px auto;
+  position: relative;
+}
+.donut:after {
+  content: '';
+  position: absolute;
+  inset: 33px;
+  background: white;
+  border-radius: 50%;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0;
+  font-size: 13px;
+}
+i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+svg {
+  width: 100%;
+  margin-top: 18px;
+}
+.axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+article p,
+.empty {
+  color: #64756e;
+  font-size: 13px;
+  line-height: 1.6;
+}
+details {
+  margin: 18px 0;
+}
+summary {
+  cursor: pointer;
+  padding: 10px 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+caption {
+  text-align: left;
+  padding: 12px;
+}
+th,
+td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #edf1ea;
+}
+@media (max-width: 600px) {
+  .graphs {
+    grid-template-columns: 1fr;
+  }
+  .summary {
+    gap: 20px;
+  }
+  .summary strong {
+    font-size: 23px;
+  }
+}

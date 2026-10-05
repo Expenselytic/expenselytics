@@ -1,58 +1,503 @@
 <main class="shell" [class.workspace-shell]="isWorkspace">
-  <nav class="nav"><a class="brand" routerLink="/"><span>e</span>xpenselytics</a><div class="nav-actions"><a class="text-button home-link" routerLink="/" *ngIf="isWorkspace">← Home</a><a class="text-button" routerLink="/workspace" *ngIf="!isWorkspace && isAuthenticated">Your workspace</a><button class="text-button" *ngIf="!isAuthenticated" (click)="openAuth('login')">Log in</button><button class="button small" *ngIf="!isAuthenticated" (click)="openAuth('signup')">Get started</button><button class="avatar" *ngIf="isAuthenticated" (click)="signOut()" title="Sign out">{{ profileName.slice(0, 1).toUpperCase() }}</button></div></nav>
+  <header class="mobile-nav" aria-label="Mobile navigation">
+    <div class="mobile-nav-bar">
+      <a class="brand" routerLink="/" (click)="closeMobileMenu()"
+        ><span>e</span>xpenselytics</a
+      >
+      <button
+        *ngIf="!isAuthenticated"
+        class="mobile-menu-toggle"
+        type="button"
+        (click)="openAuth('login')"
+      >
+        Login
+      </button>
+      <button
+        *ngIf="isAuthenticated"
+        #mobileMenuToggle
+        class="mobile-menu-toggle"
+        type="button"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="mobileMenuOpen"
+        aria-controls="mobile-navigation-panel"
+      >
+        <span aria-hidden="true">{{ mobileMenuOpen ? '×' : '☰' }}</span>
+        {{ mobileMenuOpen ? 'Close' : 'Menu' }}
+      </button>
+    </div>
+    <nav
+      *ngIf="isAuthenticated"
+      id="mobile-navigation-panel"
+      class="mobile-menu-panel"
+      aria-label="Quick navigation"
+      [hidden]="!mobileMenuOpen"
+    >
+      <p class="mobile-menu-caption">YOUR MONEY, MADE CLEAR</p>
+      <a
+        routerLink="/"
+        (click)="closeMobileMenu(true)"
+        [attr.aria-current]="!isWorkspace ? 'page' : null"
+        ><span aria-hidden="true">⌂</span
+        ><span>Home<small>Your monthly snapshot</small></span
+        ><b aria-hidden="true">→</b></a
+      >
+      <a
+        routerLink="/workspace"
+        fragment="overview"
+        (click)="closeMobileMenu(true)"
+        ><span aria-hidden="true">◈</span
+        ><span>Workspace<small>The full picture</small></span
+        ><b aria-hidden="true">→</b></a
+      >
+      <a
+        routerLink="/workspace"
+        fragment="workspace-insights"
+        (click)="closeMobileMenu(true)"
+        ><span aria-hidden="true">▥</span
+        ><span>Insights<small>Spending & savings trends</small></span
+        ><b aria-hidden="true">→</b></a
+      >
+      <a
+        routerLink="/workspace"
+        fragment="experiments"
+        (click)="closeMobileMenu(true)"
+        ><span aria-hidden="true">✧</span
+        ><span>Experiments<small>Build a better habit</small></span
+        ><b aria-hidden="true">→</b></a
+      >
+      <a routerLink="/workspace" fragment="budgets"
+        (click)="closeMobileMenu(true)"
+        ><span aria-hidden="true">◎</span>
+        <span>Budgets<small>Your plan for the month</small></span>
+        <b aria-hidden="true">→</b></a>
+      <div class="mobile-money-links">
+        <a
+          routerLink="/workspace"
+          fragment="expenses"
+          (click)="closeMobileMenu(true)"
+          ><span aria-hidden="true">↗</span> Expenses</a
+        >
+        <a
+          routerLink="/workspace"
+          fragment="savings"
+          (click)="closeMobileMenu(true)"
+          ><span aria-hidden="true">↙</span> Savings</a
+        >
+      </div>
+      <div class="mobile-account-actions">
+        <ng-container *ngIf="!isAuthenticated"
+          ><button type="button" (click)="openAuth('login')">
+            Log in</button
+          ><button
+            type="button"
+            class="mobile-primary"
+            (click)="openAuth('signup')"
+          >
+            Get started →
+          </button></ng-container
+        >
+        <ng-container *ngIf="isAuthenticated"
+          ><span>Hi, {{ profileName }}</span
+          ><button type="button" (click)="signOut()">
+            Sign out
+          </button></ng-container
+        >
+      </div>
+    </nav>
+  </header>
+  <nav class="nav">
+    <a class="brand" routerLink="/"><span>e</span>xpenselytics</a>
+    <div class="nav-actions">
+      <a class="text-button home-link" routerLink="/" *ngIf="isWorkspace"
+        >← Home</a
+      ><a
+        class="text-button"
+        routerLink="/workspace"
+        *ngIf="!isWorkspace && isAuthenticated"
+        >Your workspace</a
+      ><button
+        class="text-button"
+        *ngIf="!isAuthenticated"
+        (click)="openAuth('login')"
+      >
+        Log in</button
+      ><button
+        class="button small"
+        *ngIf="!isAuthenticated"
+        (click)="openAuth('signup')"
+      >
+        Get started</button
+      ><button
+        class="avatar"
+        *ngIf="isAuthenticated"
+        (click)="signOut()"
+        title="Sign out"
+      >
+        {{ profileName.slice(0, 1).toUpperCase() }}
+      </button>
+    </div>
+  </nav>
 
-  <section class="hero" id="top" *ngIf="!isWorkspace"><div><p class="eyebrow">YOUR MONEY, MADE CLEAR</p><h1>Spend with intent.<br><em>Live with ease.</em></h1><p class="hero-copy">A calmer way to understand every dollar, build better habits, and make room for what matters.</p><div class="hero-actions"><button class="button" (click)="isAuthenticated ? openWorkspace() : openAuth('signup')">{{ isAuthenticated ? 'Your workspace' : 'Start for free' }} <span>→</span></button><button class="text-button" (click)="openAuth('login')" *ngIf="!isAuthenticated">I have an account</button></div></div><div class="hero-card"><div class="mini-label">THIS MONTH</div><div class="balance">{{ monthlyTotal | currency }}</div><div class="trend"><span>↗</span> {{ recentTotal | currency }} in recent activity</div><p class="trend">{{ savingsTotal | currency }} saved overall</p></div></section>
-
-  <section *ngIf="!isWorkspace" class="home-summary" aria-label="Financial overview">
-    <div class="stats">
-      <article><span>MONTHLY SPEND</span><strong>{{ monthlyTotal | currency }}</strong><small>Across {{ monthlyExpenses.length }} transactions</small></article>
-      <article><span>MONTHLY SAVED</span><strong>{{ monthlySaved | currency }}</strong><small>Across {{ monthlySavings.length }} deposits</small></article>
-      <article><span>RECENT ACTIVITY</span><strong>{{ recentTotal | currency }}</strong><small>Last three transactions</small></article>
+  <section
+    class="hero"
+    id="top"
+    *ngIf="!isWorkspace"
+    [class.public-home]="!isAuthenticated"
+  >
+    <div>
+      <p class="eyebrow">YOUR MONEY, MADE CLEAR</p>
+      <h1>Spend with intent.<br /><em>Live with ease.</em></h1>
+      <p class="hero-copy">
+        A calmer way to understand every dollar, build better habits, and
+        make room for what matters.
+      </p>
+      <div class="hero-actions">
+        <button
+          class="button"
+          (click)="isAuthenticated ? openWorkspace() : openAuth('signup')"
+        >
+          {{ isAuthenticated ? 'Your workspace' : 'Start for free' }}
+          <span>→</span>
+        </button>
+        <a
+          class="text-button explore-link"
+          routerLink="/workspace"
+          *ngIf="!isAuthenticated"
+          >Explore workspace →</a
+        >
+      </div>
     </div>
   </section>
 
-  <section *ngIf="!isWorkspace" class="home-invite"><p class="eyebrow">ONE PLACE FOR YOUR NEXT CHAPTER</p><h2>A little clarity goes a long way.</h2><p>See your spending patterns, grow your savings, and turn small changes into lasting habits.</p><a class="button" routerLink="/workspace">Explore your workspace →</a></section>
-  <div *ngIf="isWorkspace" class="workspace-layout">
+  <section
+    *ngIf="!isWorkspace && isAuthenticated"
+    class="home-summary"
+    aria-label="Financial overview"
+  >
+    <div class="stats">
+      <article>
+        <span>MONTHLY SPEND</span
+        ><strong>{{ monthlyTotal | currency }}</strong
+        ><small>Across {{ monthlyExpenses.length }} transactions</small>
+      </article>
+      <article>
+        <span>MONTHLY SAVED</span
+        ><strong>{{ monthlySaved | currency }}</strong
+        ><small>Across {{ monthlySavings.length }} deposits</small>
+      </article>
+      <article>
+        <span>RECENT ACTIVITY</span
+        ><strong>{{ recentTotal | currency }}</strong
+        ><small>Last three transactions</small>
+      </article>
+    </div>
+  </section>
+
+  <section
+    *ngIf="!isWorkspace && !isAuthenticated"
+    class="home-features"
+    aria-label="What you can do"
+  >
+    <article>
+      <span aria-hidden="true">↗</span>
+      <h2>See where it goes.</h2>
+      <p>Keep everyday expenses in one clear picture.</p>
+    </article>
+    <article>
+      <span aria-hidden="true">↙</span>
+      <h2>Watch savings grow.</h2>
+      <p>Track each deposit and the progress behind it.</p>
+    </article>
+    <article>
+      <span aria-hidden="true">✧</span>
+      <h2>Build better habits.</h2>
+      <p>Try small spending experiments and see what changes.</p>
+    </article>
+  </section>
+  <div *ngIf="isWorkspace && isAuthenticated" class="workspace-layout">
     <aside class="workspace-sidebar" aria-label="Workspace navigation">
       <p class="eyebrow">YOUR WORKSPACE</p>
-      <a routerLink="/workspace" fragment="overview"><span>◈</span> Overview</a>
-      <a routerLink="/workspace" fragment="workspace-insights"><span>▥</span> Insights</a>
-      <a routerLink="/workspace" fragment="experiments"><span>✧</span> Experiments</a>
-      <a routerLink="/workspace" fragment="expenses"><span>↗</span> Expenses</a>
-      <a routerLink="/workspace" fragment="savings"><span>↙</span> Savings</a>
-      <div class="sidebar-note"><span>Small steps.<br>Lasting change.</span><p>Your next good money habit starts here.</p></div>
+      <a routerLink="/workspace" fragment="overview"
+        ><span>◈</span> Overview</a
+      >
+      <a routerLink="/workspace" fragment="workspace-insights"
+        ><span>▥</span> Insights</a
+      >
+      <a routerLink="/workspace" fragment="budgets"
+        ><span>◎</span> Budgets</a
+      >
+      <a routerLink="/workspace" fragment="experiments"
+        ><span>✧</span> Experiments</a
+      >
+      <a routerLink="/workspace" fragment="expenses"
+        ><span>↗</span> Expenses</a
+      >
+      <a routerLink="/workspace" fragment="savings"
+        ><span>↙</span> Savings</a
+      >
+      <div class="sidebar-note">
+        <span>Small steps.<br />Lasting change.</span>
+        <p>Your next good money habit starts here.</p>
+      </div>
     </aside>
     <section class="workspace" id="overview">
-      <div class="workspace-heading"><div><p class="eyebrow">MAKE ROOM FOR WHAT MATTERS</p><h1>Your money, in perspective.</h1><p>Welcome{{ isAuthenticated ? ' back, ' + profileName : '' }}. Let’s make your next move count.</p></div><a class="button" routerLink="/workspace" fragment="expenses">+ Add transaction</a></div>
-    <div class="stats"><article><span>TOTAL EXPENSES</span><strong>{{ total | currency }}</strong><small>Across {{ expenses.length }} transactions</small></article><article><span>TOTAL SAVINGS</span><strong>{{ savingsTotal | currency }}</strong><small>Across {{ savings.length }} deposits</small></article><article><span>RECENT ACTIVITY</span><strong>{{ recentTotal | currency }}</strong><small>Last three transactions</small></article></div>
-    <section id="workspace-insights" aria-label="Workspace charts">
-      <p *ngIf="loading || savingsLoading" class="loading">Loading activity for your charts…</p>
-      <app-analytics *ngIf="!loading && !savingsLoading" [expenses]="expenses" [savings]="savings" />
-    </section>
-    <section id="experiments"><app-experiments *ngIf="!loading && !savingsLoading" [expenses]="expenses" [savings]="savings" /></section>
-    <div class="section-heading" id="expenses"><div><p class="eyebrow">SPEND WITH INTENT</p><h2>Every expense tells a story.</h2></div><span>Record it. Understand it.</span></div>
-    <div class="dashboard-grid"><section class="panel form-panel"><div><p class="eyebrow">NEW TRANSACTION</p><h3>Add an expense</h3></div><form #expenseForm="ngForm" (ngSubmit)="expenseForm.valid && addExpense()"><label>What did you buy?<input name="name" [(ngModel)]="form.name" placeholder="e.g. Friday dinner" required></label><div class="two-col"><label>Category<select name="category" [(ngModel)]="form.category"><option>Food & dining</option><option>Transport</option><option>Shopping</option><option>Health</option><option>Home</option><option>Entertainment</option><option>Other</option></select></label><label>Amount<input name="amount" [(ngModel)]="form.amount" type="number" min="0.01" step="0.01" placeholder="0.00" required></label></div><label>Date & time<input name="date" [(ngModel)]="form.date" type="datetime-local" required></label><button class="button wide" type="submit" [disabled]="saving || loading || expenseForm.invalid">{{ saving ? 'Saving…' : 'Add expense →' }}</button></form></section>
-      <section class="panel transactions"><div class="panel-heading"><div><p class="eyebrow">ACTIVITY</p><h3>Recent expenses</h3></div><span>{{ expenses.length }} total</span></div><div class="loading" *ngIf="loading">Loading your expenses…</div><div class="empty" *ngIf="!loading && !expenses.length">No expenses yet. Your first one starts the story.</div><ul *ngIf="!loading && expenses.length"><li *ngFor="let expense of expenses"><div class="category-icon">{{ expense.expenseCategory.slice(0, 1) }}</div><div class="transaction-name"><strong>{{ expense.expenseName }}</strong><small>{{ expense.expenseCategory }} · {{ expense.formattedDate }}</small></div><b>-{{ expense.amount | currency }}</b><button class="delete" (click)="deleteExpense(expense)" aria-label="Delete expense">×</button></li></ul></section></div>
-    <div class="section-heading" id="savings"><div><p class="eyebrow">BUILD YOUR FUTURE</p><h2>Make progress, one deposit at a time.</h2></div></div>
-    <div class="dashboard-grid">
-      <section class="panel form-panel"><p class="eyebrow">BUILD YOUR FUTURE</p><h3>Add a saving</h3>
-        <form #savingForm="ngForm" (ngSubmit)="savingForm.valid && addSaving()">
-          <label>What are you saving for?<input name="savingName" [(ngModel)]="savingsForm.name" placeholder="e.g. Emergency fund" required></label>
-          <div class="two-col"><label>Category<select name="savingCategory" [(ngModel)]="savingsForm.category"><option>Savings</option><option>Emergency fund</option><option>Travel</option><option>Retirement</option><option>Other</option></select></label>
-          <label>Amount<input name="savingAmount" [(ngModel)]="savingsForm.amount" type="number" min="0.01" step="0.01" required></label></div>
-          <label>Date & time<input name="savingDate" [(ngModel)]="savingsForm.date" type="datetime-local" required></label>
-          <button class="button wide" type="submit" [disabled]="savingSavings || savingsLoading || savingForm.invalid">{{ savingSavings ? 'Saving…' : 'Add saving →' }}</button>
-        </form>
+      <div class="workspace-heading">
+        <div>
+          <p class="eyebrow">MAKE ROOM FOR WHAT MATTERS</p>
+          <h1>Your money, in perspective.</h1>
+          <p>
+            Welcome{{ isAuthenticated ? ' back, ' + profileName : '' }}.
+            Let’s make your next move count.
+          </p>
+        </div>
+        <a class="button" routerLink="/workspace" fragment="expenses"
+          >+ Add transaction</a
+        >
+      </div>
+      <div class="stats">
+        <article>
+          <span>TOTAL EXPENSES</span
+          ><strong>{{ total | currency }}</strong
+          ><small>Across {{ expenses.length }} transactions</small>
+        </article>
+        <article>
+          <span>TOTAL SAVINGS</span
+          ><strong>{{ savingsTotal | currency }}</strong
+          ><small>Across {{ savings.length }} deposits</small>
+        </article>
+        <article>
+          <span>RECENT ACTIVITY</span
+          ><strong>{{ recentTotal | currency }}</strong
+          ><small>Last three transactions</small>
+        </article>
+      </div>
+      <section id="workspace-insights" aria-label="Workspace charts">
+        <p *ngIf="loading || savingsLoading" class="loading">
+          Loading activity for your charts…
+        </p>
+        <app-analytics
+          *ngIf="!loading && !savingsLoading"
+          [expenses]="expenses"
+          [savings]="savings"
+        />
       </section>
-      <section class="panel transactions"><div class="panel-heading"><div><p class="eyebrow">SAVINGS</p><h3>Recent savings</h3><small>{{ savingsTotal | currency }} saved</small></div><span>{{ savings.length }} deposits</span></div>
-        <div class="loading" *ngIf="savingsLoading">Loading your savings…</div>
-        <div class="empty" *ngIf="!savingsLoading && !savings.length">No savings yet. Add your first deposit.</div>
-        <ul *ngIf="!savingsLoading && savings.length"><li *ngFor="let saving of savings"><div class="category-icon">+</div><div class="transaction-name"><strong>{{ saving.expenseName }}</strong><small>{{ saving.expenseCategory }} · {{ saving.formattedDate }}</small></div><b>+{{ saving.amount | currency }}</b><button class="delete" (click)="deleteSaving(saving)" [disabled]="deletingSavings.has(saving.id)" [attr.aria-label]="'Delete saving: ' + saving.expenseName" title="Delete saving">{{ deletingSavings.has(saving.id) ? '…' : '×' }}</button></li></ul>
+      <section id="budgets" aria-label="Monthly budgets">
+        <app-budgets
+          *ngIf="!loading"
+          [expenses]="expenses"
+        />
       </section>
-    </div>
-    <p class="notice" role="status" *ngIf="message">{{ message }}</p>
+      <section id="experiments">
+        <app-experiments
+          *ngIf="!loading && !savingsLoading"
+          [expenses]="expenses"
+          [savings]="savings"
+        />
+      </section>
+      <div class="section-heading" id="expenses">
+        <div>
+          <p class="eyebrow">SPEND WITH INTENT</p>
+          <h2>Every expense tells a story.</h2>
+        </div>
+        <span>Record it. Understand it.</span>
+      </div>
+      <div class="dashboard-grid">
+        <section class="panel form-panel">
+          <div>
+            <p class="eyebrow">NEW TRANSACTION</p>
+            <h3>Add an expense</h3>
+          </div>
+          <form
+            #expenseForm="ngForm"
+            (ngSubmit)="expenseForm.valid && addExpense()"
+          >
+            <label
+              >What did you buy?<input
+                name="name"
+                [(ngModel)]="form.name"
+                placeholder="e.g. Friday dinner"
+                required
+            /></label>
+            <div class="two-col">
+              <label
+                >Category<select
+                  name="category"
+                  [(ngModel)]="form.category"
+                >
+                  <option>Food & dining</option>
+                  <option>Transport</option>
+                  <option>Shopping</option>
+                  <option>Health</option>
+                  <option>Home</option>
+                  <option>Entertainment</option>
+                  <option>Other</option>
+                </select></label
+              ><label
+                >Amount<input
+                  name="amount"
+                  [(ngModel)]="form.amount"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  placeholder="0.00"
+                  required
+              /></label>
+            </div>
+            <label
+              >Date & time<input
+                name="date"
+                [(ngModel)]="form.date"
+                type="datetime-local"
+                required /></label
+            ><button
+              class="button wide"
+              type="submit"
+              [disabled]="saving || loading || expenseForm.invalid"
+            >
+              {{ saving ? 'Saving…' : 'Add expense →' }}
+            </button>
+          </form>
+        </section>
+        <section class="panel transactions">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">ACTIVITY</p>
+              <h3>Recent expenses</h3>
+            </div>
+            <span>{{ expenses.length }} total</span>
+          </div>
+          <div class="loading" *ngIf="loading">
+            Loading your expenses…
+          </div>
+          <div class="empty" *ngIf="!loading && !expenses.length">
+            No expenses yet. Your first one starts the story.
+          </div>
+          <ul *ngIf="!loading && expenses.length">
+            <li *ngFor="let expense of expenses">
+              <div class="category-icon">
+                {{ expense.expenseCategory.slice(0, 1) }}
+              </div>
+              <div class="transaction-name">
+                <strong>{{ expense.expenseName }}</strong
+                ><small
+                  >{{ expense.expenseCategory }} ·
+                  {{ expense.formattedDate }}</small
+                >
+              </div>
+              <b>-{{ expense.amount | currency }}</b
+              ><button
+                class="delete"
+                (click)="deleteExpense(expense)"
+                aria-label="Delete expense"
+              >
+                ×
+              </button>
+            </li>
+          </ul>
+        </section>
+      </div>
+      <div class="section-heading" id="savings">
+        <div>
+          <p class="eyebrow">BUILD YOUR FUTURE</p>
+          <h2>Make progress, one deposit at a time.</h2>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <section class="panel form-panel">
+          <p class="eyebrow">BUILD YOUR FUTURE</p>
+          <h3>Add a saving</h3>
+          <form
+            #savingForm="ngForm"
+            (ngSubmit)="savingForm.valid && addSaving()"
+          >
+            <label
+              >What are you saving for?<input
+                name="savingName"
+                [(ngModel)]="savingsForm.name"
+                placeholder="e.g. Emergency fund"
+                required
+            /></label>
+            <div class="two-col">
+              <label
+                >Category<select
+                  name="savingCategory"
+                  [(ngModel)]="savingsForm.category"
+                >
+                  <option>Savings</option>
+                  <option>Emergency fund</option>
+                  <option>Travel</option>
+                  <option>Retirement</option>
+                  <option>Other</option>
+                </select></label
+              >
+              <label
+                >Amount<input
+                  name="savingAmount"
+                  [(ngModel)]="savingsForm.amount"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  required
+              /></label>
+            </div>
+            <label
+              >Date & time<input
+                name="savingDate"
+                [(ngModel)]="savingsForm.date"
+                type="datetime-local"
+                required
+            /></label>
+            <button
+              class="button wide"
+              type="submit"
+              [disabled]="
+                savingSavings || savingsLoading || savingForm.invalid
+              "
+            >
+              {{ savingSavings ? 'Saving…' : 'Add saving →' }}
+            </button>
+          </form>
+        </section>
+        <section class="panel transactions">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">SAVINGS</p>
+              <h3>Recent savings</h3>
+              <small>{{ savingsTotal | currency }} saved</small>
+            </div>
+            <span>{{ savings.length }} deposits</span>
+          </div>
+          <div class="loading" *ngIf="savingsLoading">
+            Loading your savings…
+          </div>
+          <div class="empty" *ngIf="!savingsLoading && !savings.length">
+            No savings yet. Add your first deposit.
+          </div>
+          <ul *ngIf="!savingsLoading && savings.length">
+            <li *ngFor="let saving of savings">
+              <div class="category-icon">+</div>
+              <div class="transaction-name">
+                <strong>{{ saving.expenseName }}</strong
+                ><small
+                  >{{ saving.expenseCategory }} ·
+                  {{ saving.formattedDate }}</small
+                >
+              </div>
+              <b>+{{ saving.amount | currency }}</b
+              ><button
+                class="delete"
+                (click)="deleteSaving(saving)"
+                [disabled]="deletingSavings.has(saving.id)"
+                [attr.aria-label]="'Delete saving: ' + saving.expenseName"
+                title="Delete saving"
+              >
+                {{ deletingSavings.has(saving.id) ? '…' : '×' }}
+              </button>
+            </li>
+          </ul>
+        </section>
+      </div>
+      <p class="notice" role="status" *ngIf="message">{{ message }}</p>
     </section>
   </div>
 </main>
-
-<div class="modal-backdrop" *ngIf="showAuth" (click)="showAuth = false"><section class="auth-modal" (click)="$event.stopPropagation()"><button class="close" (click)="showAuth = false">×</button><p class="eyebrow">EXPENSELYTICS</p><h2>{{ authMode === 'login' ? 'Welcome back' : 'Begin your money story' }}</h2><p>{{ authMode === 'login' ? 'Log in to pick up where you left off.' : 'Create your free workspace in a moment.' }}</p><form #authForm="ngForm" (ngSubmit)="authForm.valid && authenticate()"><label *ngIf="authMode === 'signup'">Your name<input name="profileName" [(ngModel)]="profileName" placeholder="Alex Morgan" maxlength="100" autocomplete="name" required></label><label>Email<input name="email" [(ngModel)]="email" type="email" email maxlength="254" autocomplete="email" placeholder="you@example.com" required></label><label>Password<input name="password" [(ngModel)]="password" type="password" [minlength]="authMode === 'signup' ? 12 : 1" maxlength="256" [autocomplete]="authMode === 'signup' ? 'new-password' : 'current-password'" placeholder="••••••••" required></label><p *ngIf="authMode === 'signup'">Use at least 12 characters. We record your IP address, device type, and approximate state/country when you sign up or log in.</p><p role="alert" *ngIf="authError">{{ authError }}</p><button class="button wide" type="submit" [disabled]="authenticating || authForm.invalid">{{ authenticating ? 'Please wait…' : authMode === 'login' ? 'Log in' : 'Create account' }} →</button></form><button class="switch" [disabled]="authenticating" (click)="authMode = authMode === 'login' ? 'signup' : 'login'">{{ authMode === 'login' ? 'New here? Create an account' : 'Already have an account? Log in' }}</button></section></div>

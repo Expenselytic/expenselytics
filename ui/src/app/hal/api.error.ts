@@ -1,15 +1,15 @@
-export class ApiError  extends Error {
-    readonly timestamp = new Date().toISOString();
+export class ApiError extends Error {
+  readonly timestamp = new Date().toISOString();
 
-    readonly httpStatus = 0;
+  readonly httpStatus = 0;
 
-    readonly path?: string;
+  readonly path?: string;
 
-    readonly exception?: string;
+  readonly exception?: string;
 
-    constructor(obj: any) {
-        super();
-        Object.assign(this, obj);
-        this.name = 'ApiError';
-    }
+  constructor(obj: any) {
+    super();
+    Object.assign(this, obj);
+    this.name = 'ApiError';
+  }
 }

@@ -10,22 +10,59 @@ import reactor.core.scheduler.Schedulers;
 @RestController
 @RequestMapping(ApiRootController.ROOT + "/experiments")
 public class SpendingExperimentController {
+
     private final SpendingExperimentService service;
-    public SpendingExperimentController(SpendingExperimentService service) { this.service = service; }
+
+    public SpendingExperimentController(
+        SpendingExperimentService service
+    ) {
+        this.service = service;
+    }
+
     @GetMapping
     public Mono<List<SpendingExperimentService.View>> list() {
-        return Mono.fromCallable(service::list).subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromCallable(service::list).subscribeOn(
+            Schedulers.boundedElastic()
+        );
     }
-    @PostMapping @ResponseStatus(HttpStatus.CREATED)
-    public Mono<SpendingExperimentService.View> create(@RequestBody SpendingExperimentService.Request request) {
-        return Mono.fromCallable(() -> service.create(request)).subscribeOn(Schedulers.boundedElastic());
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<SpendingExperimentService.View> create(
+        @RequestBody SpendingExperimentService.Request request
+    ) {
+        return Mono.fromCallable(() ->
+            service.create(request)
+        ).subscribeOn(Schedulers.boundedElastic());
     }
-    @PutMapping("/{id}/savings/{savingId}") @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> link(@PathVariable Long id, @PathVariable Long savingId) {
-        return Mono.fromRunnable(() -> service.link(id, savingId)).subscribeOn(Schedulers.boundedElastic()).then();
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> delete(@PathVariable Long id) {
+        return Mono.fromRunnable(() -> service.delete(id))
+            .subscribeOn(Schedulers.boundedElastic())
+            .then();
     }
-    @DeleteMapping("/{id}/savings/{savingId}") @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> unlink(@PathVariable Long id, @PathVariable Long savingId) {
-        return Mono.fromRunnable(() -> service.unlink(id, savingId)).subscribeOn(Schedulers.boundedElastic()).then();
+
+    @PutMapping("/{id}/savings/{savingId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> link(
+        @PathVariable Long id,
+        @PathVariable Long savingId
+    ) {
+        return Mono.fromRunnable(() -> service.link(id, savingId))
+            .subscribeOn(Schedulers.boundedElastic())
+            .then();
+    }
+
+    @DeleteMapping("/{id}/savings/{savingId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> unlink(
+        @PathVariable Long id,
+        @PathVariable Long savingId
+    ) {
+        return Mono.fromRunnable(() -> service.unlink(id, savingId))
+            .subscribeOn(Schedulers.boundedElastic())
+            .then();
     }
 }

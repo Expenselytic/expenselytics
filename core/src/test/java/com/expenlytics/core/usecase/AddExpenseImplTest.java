@@ -27,9 +27,23 @@ class AddExpenseImplTest {
     @Test
     void rejectsMissingAndZeroAmounts() {
         AddExpenseImpl useCase = new AddExpenseImpl(expense -> expense);
-        for (String amount : new String[] {null, "0", "0.00", "-1", "1.234"}) {
-            var expense = new Expense(0, "Deposit", "Savings", amount, LocalDateTime.now().minusMinutes(1));
-            assertThrows(InvalidInformationException.class, () -> useCase.createExpense(expense));
+        for (String amount : new String[] {
+            null,
+            "0",
+            "0.00",
+            "-1",
+            "1.234",
+        }) {
+            var expense = new Expense(
+                0,
+                "Deposit",
+                "Savings",
+                amount,
+                LocalDateTime.now().minusMinutes(1)
+            );
+            assertThrows(InvalidInformationException.class, () ->
+                useCase.createExpense(expense)
+            );
         }
     }
 

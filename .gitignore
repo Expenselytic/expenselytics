@@ -19,5 +19,7 @@ expenselytics/ui/node
 /NAS-SETUP.md
 /compose.yaml
 /docs
+.editorconfig
+/AGENTS.md
 
 /app/src/main/resources/

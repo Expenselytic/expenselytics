@@ -1,12 +1,11 @@
 package com.expenlytics.web.security;
 
+import com.expenlytics.core.exception.AccountException;
+import com.expenlytics.core.usecase.AccountService;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,86 +14,61 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
+/** Require an active account session for all financial API requests. */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class BearerTokenWebFilter implements WebFilter {
 
-    private static final Set<HttpMethod> PROTECTED_METHODS = Set.of(
-        HttpMethod.POST,
-        HttpMethod.PUT,
-        HttpMethod.PATCH,
-        HttpMethod.DELETE
+    private static final Set<String> PUBLIC_PATHS = Set.of(
+        "/api/v1",
+        "/api/v1/",
+        "/api/v1/auth/signup",
+        "/api/v1/auth/login",
+        "/api/v1/auth/logout",
+        "/api/v1/auth/me"
     );
-    private final byte[] expectedToken;
-    private final com.expenlytics.core.usecase.AccountService accounts;
+    private final AccountService accounts;
 
-    @org.springframework.beans.factory.annotation.Autowired
-    public BearerTokenWebFilter(
-        @Value(
-            "${app.security.auth-token:dev-only-token}"
-        ) String expectedToken,
-        com.expenlytics.core.usecase.AccountService accounts
-    ) {
+    public BearerTokenWebFilter(AccountService accounts) {
         this.accounts = accounts;
-        this.expectedToken = expectedToken.getBytes(
-            StandardCharsets.UTF_8
-        );
     }
-
-    public BearerTokenWebFilter(String token) { this(token, null); }
 
     @Override
     public Mono<Void> filter(
         ServerWebExchange exchange,
         WebFilterChain chain
     ) {
+        String path = exchange.getRequest().getPath().value();
         if (
-            Set.of(
-                "/api/v1/auth/signup",
-                "/api/v1/auth/login",
-                "/api/v1/auth/logout",
-                "/api/v1/auth/me"
-            ).contains(exchange.getRequest().getPath().value()) ||
-            HttpMethod.OPTIONS.equals(
-                exchange.getRequest().getMethod()
-            ) ||
-            !PROTECTED_METHODS.contains(
-                exchange.getRequest().getMethod()
-            ) ||
-            !exchange.getRequest().getPath().value().startsWith("/api/")
+            !path.startsWith("/api/") ||
+            PUBLIC_PATHS.contains(path) ||
+            HttpMethod.OPTIONS.equals(exchange.getRequest().getMethod())
         ) {
             return chain.filter(exchange);
         }
-
-        String authorization = exchange
+        exchange.getResponse().getHeaders().setCacheControl("no-store");
+        var cookie = exchange
             .getRequest()
-            .getHeaders()
-            .getFirst(HttpHeaders.AUTHORIZATION);
-        String supplied =
-            authorization != null && authorization.startsWith("Bearer ")
-                ? authorization.substring(7)
-                : "";
-        byte[] suppliedToken = supplied.getBytes(StandardCharsets.UTF_8);
-        if (MessageDigest.isEqual(expectedToken, suppliedToken)) {
-            return chain.filter(exchange);
-        }
-
-        var cookie = exchange.getRequest().getCookies().getFirst("expenselytics_session");
-        if (cookie != null && accounts != null) {
-            return Mono.fromCallable(() -> accounts.current(cookie.getValue()))
-                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic())
-                .map(profile -> true)
-                .onErrorResume(com.expenlytics.core.exception.AccountException.class, error -> Mono.just(false))
-                .flatMap(valid -> valid ? chain.filter(exchange) : unauthorized(exchange));
-        }
-        return unauthorized(exchange);
+            .getCookies()
+            .getFirst("expenselytics_session");
+        if (cookie == null) return unauthorized(exchange);
+        return Mono.fromCallable(() ->
+            accounts.current(cookie.getValue())
+        )
+            .subscribeOn(Schedulers.boundedElastic())
+            .map(profile -> true)
+            .onErrorResume(AccountException.class, e -> Mono.just(false))
+            .flatMap(valid ->
+                valid ? chain.filter(exchange) : unauthorized(exchange)
+            );
     }
 
     private Mono<Void> unauthorized(ServerWebExchange exchange) {
         byte[] body = (
             "{\"title\":\"Unauthorized\",\"status\":401," +
-            "\"detail\":\"A valid bearer token is required\"}"
+            "\"detail\":\"Please log in to access your finances\"}"
         ).getBytes(StandardCharsets.UTF_8);
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         exchange

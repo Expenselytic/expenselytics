@@ -53,7 +53,7 @@ public class AccountService {
                 input.name() == null ||
                 input.name().isBlank() ||
                 input.name().trim().length() > 100 ||
-                input.password().length() < 12
+                input.password().length() < 8
             ) throw invalid();
             if (existing.isPresent()) throw new AccountException(
                 DUPLICATE_EMAIL,
@@ -117,7 +117,7 @@ public class AccountService {
     private AccountException invalid() {
         return new AccountException(
             INVALID_INPUT,
-            "Enter a valid name, email, and password (12–256 " +
+            "Enter a valid name, email, and password (8–256 " +
                 "characters for signup)"
         );
     }

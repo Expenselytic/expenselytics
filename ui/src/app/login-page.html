@@ -1,0 +1,75 @@
+<main class="login-shell">
+  <a class="brand" routerLink="/">← Expenselytics</a>
+  <section class="login-card" aria-labelledby="login-title">
+    <p class="eyebrow">YOUR MONEY, MADE CLEAR</p>
+    <h1 id="login-title">
+      {{ mode === 'login' ? 'Welcome back.' : 'Begin your money story.' }}
+    </h1>
+    <p>
+      {{
+        mode === 'login'
+          ? 'Log in to pick up where you left off.'
+          : 'Create an account to start tracking your money.'
+      }}
+    </p>
+    <form #form="ngForm" (ngSubmit)="form.valid && submit()">
+      <label *ngIf="mode === 'signup'"
+        >Your name
+        <input
+          name="name"
+          [(ngModel)]="name"
+          autocomplete="name"
+          maxlength="100"
+          required
+        />
+      </label>
+      <label
+        >Email
+        <input
+          name="email"
+          [(ngModel)]="email"
+          type="email"
+          email
+          autocomplete="email"
+          maxlength="254"
+          required
+        />
+      </label>
+      <label
+        >Password
+        <input
+          name="password"
+          [(ngModel)]="password"
+          type="password"
+          [minlength]="mode === 'signup' ? 8 : 1"
+          maxlength="256"
+          [autocomplete]="
+            mode === 'signup' ? 'new-password' : 'current-password'
+          "
+          required
+        />
+      </label>
+      <p *ngIf="mode === 'signup'" class="hint">
+        Use at least 8 characters. We record your IP address, device type,
+        and approximate location when you log in.
+      </p>
+      <p *ngIf="error" role="alert">{{ error }}</p>
+      <button type="submit" [disabled]="busy || form.invalid">
+        {{
+          busy
+            ? 'Please wait…'
+            : mode === 'login'
+              ? 'Log in →'
+              : 'Create account →'
+        }}
+      </button>
+    </form>
+    <button class="switch" (click)="switchMode()" [disabled]="busy">
+      {{
+        mode === 'login'
+          ? 'New here? Create an account'
+          : 'Already have an account? Log in'
+      }}
+    </button>
+  </section>
+</main>

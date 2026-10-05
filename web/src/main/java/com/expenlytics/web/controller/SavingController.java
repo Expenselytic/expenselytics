@@ -15,43 +15,75 @@ import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping(ApiRootController.ROOT + "/savings")
-@CrossOrigin(origins = {"http://localhost:8080", "http://localhost:4200"})
+@CrossOrigin(
+    origins = { "http://localhost:8080", "http://localhost:4200" }
+)
 public class SavingController {
+
     private final SavingRepository savings;
     private final AddExpenseImpl create;
 
     public SavingController(SavingRepository savings) {
         this.savings = savings;
-        this.create = new AddExpenseImpl(expense -> toDomain(savings.save(new SavingEntity(expense))));
+        this.create = new AddExpenseImpl(expense ->
+            toDomain(savings.save(new SavingEntity(expense)))
+        );
     }
 
     @PostMapping
-    public Mono<ResponseEntity<Expense>> add(@RequestBody ExpenseRequest request) {
-        return create.createExpense(request.toDomain()).map(saved ->
-            ResponseEntity.created(URI.create(ApiRootController.ROOT + "/savings/" + saved.getId())).body(saved));
+    public Mono<ResponseEntity<Expense>> add(
+        @RequestBody ExpenseRequest request
+    ) {
+        return create
+            .createExpense(request.toDomain())
+            .map(saved ->
+                ResponseEntity.created(
+                    URI.create(
+                        ApiRootController.ROOT +
+                            "/savings/" +
+                            saved.getId()
+                    )
+                ).body(saved)
+            );
     }
 
     @GetMapping
     public Mono<List<Expense>> list() {
-        return Mono.fromCallable(() -> savings.findAll(Sort.by(Sort.Direction.DESC, "date", "id"))
-            .stream().map(SavingController::toDomain).toList()).subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromCallable(() ->
+            savings
+                .findAll(Sort.by(Sort.Direction.DESC, "date", "id"))
+                .stream()
+                .map(SavingController::toDomain)
+                .toList()
+        ).subscribeOn(Schedulers.boundedElastic());
     }
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<Expense>> get(@PathVariable Long id) {
-        return Mono.fromCallable(() -> savings.findById(id).map(SavingController::toDomain)
-            .map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build()))
-            .subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromCallable(() ->
+            savings
+                .findById(id)
+                .map(SavingController::toDomain)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build())
+        ).subscribeOn(Schedulers.boundedElastic());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
     public Mono<Void> deleteSaving(@PathVariable Long id) {
         return Mono.fromRunnable(() -> savings.deleteById(id))
-            .subscribeOn(Schedulers.boundedElastic()).then();
+            .subscribeOn(Schedulers.boundedElastic())
+            .then();
     }
 
     private static Expense toDomain(SavingEntity saved) {
-        return new Expense(saved.getId(), saved.getName(), saved.getCategory(), saved.getAmount(), saved.getDate());
+        return new Expense(
+            saved.getId(),
+            saved.getName(),
+            saved.getCategory(),
+            saved.getAmount(),
+            saved.getDate()
+        );
     }
 }

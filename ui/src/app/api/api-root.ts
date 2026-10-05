@@ -15,15 +15,23 @@ export class ApiRoot extends Resource {
   }
 
   getSavings(): Observable<Expense[]> {
-    return this.fetch(ExpenseList, 'savings').pipe(map(collection => collection.items));
+    return this.fetch(ExpenseList, 'savings').pipe(
+      map((collection) => collection.items),
+    );
   }
 
-  createSaving(service: ResourceService, saving: ExpenseRequest): Observable<Expense> {
-    return service.post(this.hrefFor('savings') ?? `${API_V1_ROOT}/savings`, saving).pipe(map(value => new Expense(value)));
+  createSaving(
+    service: ResourceService,
+    saving: ExpenseRequest,
+  ): Observable<Expense> {
+    return service
+      .post(this.hrefFor('savings') ?? `${API_V1_ROOT}/savings`, saving)
+      .pipe(map((value) => new Expense(value)));
   }
 
   deleteSaving(service: ResourceService, id: number): Observable<void> {
-    const href = this.hrefFor('deleteSaving', { id }) ??
+    const href =
+      this.hrefFor('deleteSaving', { id }) ??
       `${this.hrefFor('savings') ?? `${API_V1_ROOT}/savings`}/${id}`;
     return service.delete(href);
   }
@@ -42,7 +50,9 @@ export class ApiRoot extends Resource {
     if (!href) {
       throw new Error('The API does not advertise an addExpense link.');
     }
-    return service.post(href, expense).pipe(map(value => new Expense(value)));
+    return service
+      .post(href, expense)
+      .pipe(map((value) => new Expense(value)));
   }
 
   deleteExpense(service: ResourceService, id: number): Observable<void> {
@@ -74,7 +84,10 @@ export interface ExpenseRequest {
   date: string;
 }
 
-/** Adapts the API's array response into a HAL Resource-compatible collection. */
+/**
+ * Adapts the API's array response into a HAL Resource-compatible
+ * collection.
+ */
 export class ExpenseList extends Resource {
   readonly items: Expense[];
 
