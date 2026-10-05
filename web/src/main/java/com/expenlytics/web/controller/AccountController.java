@@ -140,10 +140,14 @@ public class AccountController {
                     .httpOnly(true)
                     .sameSite("Strict")
                     .secure(secureCookie)
-                    .path(ApiRootController.ROOT + "/auth")
+                    .path(ApiRootController.ROOT)
                     .maxAge(age)
                     .build()
             );
+        exchange.getResponse().addCookie(ResponseCookie.from(COOKIE, "")
+            .httpOnly(true).sameSite("Strict").secure(secureCookie)
+            .path(ApiRootController.ROOT + "/auth").maxAge(Duration.ZERO).build());
+
     }
 
     private <T> Mono<T> blocking(

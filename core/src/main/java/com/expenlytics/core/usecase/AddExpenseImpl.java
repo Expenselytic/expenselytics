@@ -49,6 +49,8 @@ public class AddExpenseImpl implements CreateExpense {
             throw new InvalidInformationException(
                 "Amount must be a valid number"
             );
+        } else if (new java.math.BigDecimal(expense.getAmount()).signum() <= 0) {
+            throw new InvalidInformationException("Amount must be greater than zero");
         } else if (expense.getDate() == null) {
             throw new InvalidInformationException("Date is required");
         } else if (expense.getDate().isAfter(LocalDateTime.now())) {

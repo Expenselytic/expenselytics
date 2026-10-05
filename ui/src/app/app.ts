@@ -29,6 +29,47 @@ export class App implements OnInit {
   message = '';
   root?: ApiRoot;
   expenses: Expense[] = [];
+  savings: Expense[] = [];
+  savingSavings = false;
+  savingsLoading = false;
+  savingsForm: ExpenseRequest = { ...this.emptyForm(), category: 'Savings' };
+
+  get savingsTotal(): number {
+    return this.savings.reduce((sum, item) => sum + item.amount, 0);
+  }
+
+  addSaving(): void {
+    if (this.savingSavings) return;
+    if (!this.validForm(this.savingsForm)) {
+      this.message = 'Enter a name, positive amount, category, and date.';
+      return;
+    }
+    if (!this.root) { this.message = 'Connect the backend to save.'; return; }
+    this.savingSavings = true;
+    this.root.createSaving(this.resourceService, { ...this.savingsForm, amount: String(this.savingsForm.amount) }).subscribe({
+      next: () => {
+        this.savingSavings = false;
+        this.savingsForm = { ...this.emptyForm(), category: 'Savings' };
+        this.message = 'Saving added successfully.';
+        this.loadSavings();
+      },
+      error: () => { this.savingSavings = false; this.message = 'Could not save. Check that you are logged in and try again.'; },
+    });
+  }
+
+  private loadSavings(): void {
+    if (!this.root) return;
+    this.savingsLoading = true;
+    this.root.getSavings().subscribe({
+      next: items => { this.savings = items; this.savingsLoading = false; },
+      error: () => { this.savingsLoading = false; this.message = 'Savings could not be loaded.'; },
+    });
+  }
+
+  private validForm(form: ExpenseRequest): boolean {
+    return !!form.name.trim() && !!form.category.trim() && Number(form.amount) > 0
+      && /^\d+(\.\d{1,2})?$/.test(String(form.amount)) && !!form.date;
+  }
   form: ExpenseRequest = this.emptyForm();
 
   constructor(
@@ -121,7 +162,8 @@ export class App implements OnInit {
   }
 
   addExpense(): void {
-    if (!this.form.name || !this.form.amount || !this.form.category) {
+    if (this.saving) return;
+    if (!this.validForm(this.form)) {
       this.message = 'Add a name, amount, and category first.';
       return;
     }
@@ -137,7 +179,7 @@ export class App implements OnInit {
       this.saving = false;
       return;
     }
-    this.root.createExpense(this.resourceService, this.form).subscribe({
+    this.root.createExpense(this.resourceService, { ...this.form, amount: String(this.form.amount) }).subscribe({
       next: () => {
         this.message = 'Expense saved successfully.';
         finish();
@@ -173,6 +215,7 @@ export class App implements OnInit {
       next: (root) => {
         this.root = root;
         this.loadExpenses();
+        this.loadSavings();
       },
       error: () => {
         this.loading = false;
@@ -203,7 +246,7 @@ export class App implements OnInit {
       name: '',
       category: 'Food & dining',
       amount: '',
-      date: new Date().toISOString().slice(0, 16),
+      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
     };
   }
 }

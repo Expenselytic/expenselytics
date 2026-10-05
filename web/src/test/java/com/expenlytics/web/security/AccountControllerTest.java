@@ -70,7 +70,7 @@ class AccountControllerTest {
             .expectHeader()
             .valueEquals(HttpHeaders.CACHE_CONTROL, "no-store")
             .expectCookie()
-            .path("expenselytics_session", "/api/v1/auth")
+            .path("expenselytics_session", "/api/v1")
             .expectCookie()
             .httpOnly("expenselytics_session", true)
             .expectCookie()

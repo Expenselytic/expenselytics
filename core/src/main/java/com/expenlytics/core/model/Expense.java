@@ -47,7 +47,7 @@ public class Expense {
     }
 
     public String getAmount() {
-        return amount.trim();
+        return amount == null ? null : amount.trim();
     }
 
     public LocalDateTime getDate() {

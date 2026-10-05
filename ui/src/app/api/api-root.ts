@@ -14,6 +14,14 @@ export class ApiRoot extends Resource {
     Object.assign(this, obj);
   }
 
+  getSavings(): Observable<Expense[]> {
+    return this.fetch(ExpenseList, 'savings').pipe(map(collection => collection.items));
+  }
+
+  createSaving(service: ResourceService, saving: ExpenseRequest): Observable<unknown> {
+    return service.post(this.hrefFor('savings') ?? `${API_V1_ROOT}/savings`, saving);
+  }
+
   getExpenses(): Observable<Expense[]> {
     return this.fetch(ExpenseList, 'getExpense').pipe(
       map((collection) => collection.items),

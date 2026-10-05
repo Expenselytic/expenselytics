@@ -27,6 +27,9 @@ public class UserEntity {
     @Column(nullable = false, length = 512)
     public String passwordHash;
 
+    @Column(name = "last_login")
+    public Instant lastLogin;
+
     @Column(nullable = false)
     public Instant createdAt = Instant.now();
 }

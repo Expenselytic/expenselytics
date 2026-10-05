@@ -111,7 +111,7 @@ public class AccountDaoImpl implements AccountDAO {
     @Override
     @Transactional
     public void deleteSession(String tokenHash) {
-        sessions.deleteToken(tokenHash);
+        sessions.endSession(tokenHash, Instant.now());
     }
 
     private AccountProfile profile(UserEntity user) {

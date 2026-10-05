@@ -41,6 +41,24 @@ class AccountDaoImplTest {
     @Autowired
     UserSessionRepository sessions;
 
+    @Autowired
+    SavingRepository savings;
+
+    @Autowired
+    ExpenseRepository expenses;
+
+    @Test
+    void savingsPersistSeparatelyFromExpenses() {
+        long expenseCount = expenses.count();
+        var saving = new com.expenlytics.db.entity.SavingEntity(new com.expenlytics.core.model.Expense(
+            0, "Emergency fund", "Savings", "150.25", java.time.LocalDateTime.now().minusMinutes(1)));
+        var saved = savings.saveAndFlush(saving);
+        var loaded = savings.findById(saved.getId()).orElseThrow();
+        assertEquals("Emergency fund", loaded.getName());
+        assertEquals("150.25", loaded.getAmount());
+        assertEquals(expenseCount, expenses.count());
+    }
+
     private final DeviceInfo device = new DeviceInfo(
         "127.0.0.1",
         "Mozilla iPhone",
@@ -90,6 +108,34 @@ class AccountDaoImplTest {
                 .findProfileBySession("a".repeat(64), Instant.now())
                 .isEmpty()
         );
+    }
+
+    @Test
+    void logoutRecordsTimeOnlyOnce() {
+        var before = Instant.now();
+        var profile = dao.register("Jane", "logout@example.com", "hash", device,
+            "e".repeat(64), before.plusSeconds(600));
+        assertNull(users.findById(profile.userId()).orElseThrow().lastLogin);
+        dao.deleteSession("e".repeat(64));
+        var ended = users.findById(profile.userId()).orElseThrow().lastLogin;
+        assertNotNull(ended);
+        assertFalse(ended.isBefore(before));
+        assertFalse(ended.isAfter(Instant.now()));
+        dao.deleteSession("e".repeat(64));
+        assertEquals(ended, users.findById(profile.userId()).orElseThrow().lastLogin);
+    }
+
+    @Test
+    void lateLogoutRecordsExpiryAndOldSessionsCannotMoveTimestampBackwards() {
+        var expiry = Instant.now().minusSeconds(100).truncatedTo(java.time.temporal.ChronoUnit.MICROS);
+        var profile = dao.register("Jane", "expiry@example.com", "hash", device,
+            "e".repeat(64), expiry);
+        dao.deleteSession("e".repeat(64));
+        assertEquals(expiry, users.findById(profile.userId()).orElseThrow().lastLogin);
+        dao.recordLogin(profile.userId(), device, "f".repeat(64), expiry.minusSeconds(50));
+        new AccountMaintenance(sessions, devices, 100, 0).cleanup();
+        assertEquals(expiry, users.findById(profile.userId()).orElseThrow().lastLogin);
+        assertEquals(0, sessions.count());
     }
 
     @Test

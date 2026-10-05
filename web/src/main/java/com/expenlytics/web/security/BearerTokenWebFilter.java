@@ -27,16 +27,22 @@ public class BearerTokenWebFilter implements WebFilter {
         HttpMethod.DELETE
     );
     private final byte[] expectedToken;
+    private final com.expenlytics.core.usecase.AccountService accounts;
 
+    @org.springframework.beans.factory.annotation.Autowired
     public BearerTokenWebFilter(
         @Value(
             "${app.security.auth-token:dev-only-token}"
-        ) String expectedToken
+        ) String expectedToken,
+        com.expenlytics.core.usecase.AccountService accounts
     ) {
+        this.accounts = accounts;
         this.expectedToken = expectedToken.getBytes(
             StandardCharsets.UTF_8
         );
     }
+
+    public BearerTokenWebFilter(String token) { this(token, null); }
 
     @Override
     public Mono<Void> filter(
@@ -74,6 +80,18 @@ public class BearerTokenWebFilter implements WebFilter {
             return chain.filter(exchange);
         }
 
+        var cookie = exchange.getRequest().getCookies().getFirst("expenselytics_session");
+        if (cookie != null && accounts != null) {
+            return Mono.fromCallable(() -> accounts.current(cookie.getValue()))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic())
+                .map(profile -> true)
+                .onErrorResume(com.expenlytics.core.exception.AccountException.class, error -> Mono.just(false))
+                .flatMap(valid -> valid ? chain.filter(exchange) : unauthorized(exchange));
+        }
+        return unauthorized(exchange);
+    }
+
+    private Mono<Void> unauthorized(ServerWebExchange exchange) {
         byte[] body = (
             "{\"title\":\"Unauthorized\",\"status\":401," +
             "\"detail\":\"A valid bearer token is required\"}"
