@@ -26,7 +26,9 @@ public class ApiRootController {
         var root = new ApiRootModel("1.0", "OK");
         return root
             .add(Link.of(ROOT).withSelfRel())
+            .add(Link.of(ROOT + "/experiments", "experiments"))
             .add(Link.of(ROOT + "/savings", "savings"))
+            .add(Link.of(ROOT + "/savings/{id}", "deleteSaving"))
             .add(Link.of(ROOT + "/expenses", "expenses"))
             .add(Link.of(ROOT + "/expenses", "addExpense"))
             .add(Link.of(ROOT + "/expenses", "getExpense"))

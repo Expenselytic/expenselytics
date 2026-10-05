@@ -26,7 +26,7 @@ class AccountDaoImplTest {
     @Configuration
     @EntityScan(basePackageClasses = UserEntity.class)
     @EnableJpaRepositories(basePackageClasses = UserRepository.class)
-    @Import(AccountDaoImpl.class)
+    @Import({AccountDaoImpl.class, SpendingExperimentService.class})
     static class Config {}
 
     @Autowired
@@ -57,6 +57,49 @@ class AccountDaoImplTest {
         assertEquals("Emergency fund", loaded.getName());
         assertEquals("150.25", loaded.getAmount());
         assertEquals(expenseCount, expenses.count());
+    }
+
+    @Autowired
+    SpendingExperimentService experiments;
+
+    @Autowired
+    jakarta.persistence.EntityManager entityManager;
+
+    @Test
+    void experimentsPersistLinksPreventDoubleCountingAndRemoveDeletedDeposits() {
+        var request = new SpendingExperimentService.Request("Cook more", "Food", java.time.LocalDate.now().minusDays(7), 14);
+        var first = experiments.create(request);
+        var second = experiments.create(request);
+        var saving = savings.saveAndFlush(new com.expenlytics.db.entity.SavingEntity(new com.expenlytics.core.model.Expense(
+            0, "Fund", "Savings", "25", java.time.LocalDateTime.now())));
+        experiments.link(first.id(), saving.getId());
+        entityManager.flush(); entityManager.clear();
+        assertEquals(java.util.List.of(saving.getId()), experiments.list().stream().filter(e -> e.id().equals(first.id())).findFirst().orElseThrow().savingIds());
+        experiments.link(first.id(), saving.getId());
+        experiments.unlink(first.id(), saving.getId());
+        entityManager.flush();
+        experiments.link(second.id(), saving.getId());
+        entityManager.flush(); entityManager.clear();
+        savings.deleteById(saving.getId()); savings.flush(); entityManager.clear();
+        assertTrue(experiments.list().stream().allMatch(e -> e.savingIds().isEmpty()));
+    }
+
+    @Test
+    void rejectsInvalidExperiments() {
+        assertThrows(IllegalArgumentException.class, () -> experiments.create(
+            new SpendingExperimentService.Request("", "Food", java.time.LocalDate.now(), 0)));
+    }
+
+    @Test
+    void rejectsAttributingOneDepositToTwoExperiments() {
+        var request = new SpendingExperimentService.Request("Cook more", "Food", java.time.LocalDate.now().minusDays(7), 14);
+        var first = experiments.create(request);
+        var second = experiments.create(request);
+        var saving = savings.saveAndFlush(new com.expenlytics.db.entity.SavingEntity(new com.expenlytics.core.model.Expense(
+            0, "Fund", "Savings", "25", java.time.LocalDateTime.now())));
+        experiments.link(first.id(), saving.getId());
+        entityManager.flush(); entityManager.clear();
+        assertThrows(IllegalArgumentException.class, () -> experiments.link(second.id(), saving.getId()));
     }
 
     private final DeviceInfo device = new DeviceInfo(

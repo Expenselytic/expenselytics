@@ -44,6 +44,13 @@ public class SavingController {
             .subscribeOn(Schedulers.boundedElastic());
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public Mono<Void> deleteSaving(@PathVariable Long id) {
+        return Mono.fromRunnable(() -> savings.deleteById(id))
+            .subscribeOn(Schedulers.boundedElastic()).then();
+    }
+
     private static Expense toDomain(SavingEntity saved) {
         return new Expense(saved.getId(), saved.getName(), saved.getCategory(), saved.getAmount(), saved.getDate());
     }

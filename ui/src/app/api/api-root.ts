@@ -18,8 +18,14 @@ export class ApiRoot extends Resource {
     return this.fetch(ExpenseList, 'savings').pipe(map(collection => collection.items));
   }
 
-  createSaving(service: ResourceService, saving: ExpenseRequest): Observable<unknown> {
-    return service.post(this.hrefFor('savings') ?? `${API_V1_ROOT}/savings`, saving);
+  createSaving(service: ResourceService, saving: ExpenseRequest): Observable<Expense> {
+    return service.post(this.hrefFor('savings') ?? `${API_V1_ROOT}/savings`, saving).pipe(map(value => new Expense(value)));
+  }
+
+  deleteSaving(service: ResourceService, id: number): Observable<void> {
+    const href = this.hrefFor('deleteSaving', { id }) ??
+      `${this.hrefFor('savings') ?? `${API_V1_ROOT}/savings`}/${id}`;
+    return service.delete(href);
   }
 
   getExpenses(): Observable<Expense[]> {
@@ -31,12 +37,12 @@ export class ApiRoot extends Resource {
   createExpense(
     service: ResourceService,
     expense: ExpenseRequest,
-  ): Observable<unknown> {
+  ): Observable<Expense> {
     const href = this.hrefFor('addExpense');
     if (!href) {
       throw new Error('The API does not advertise an addExpense link.');
     }
-    return service.post(href, expense);
+    return service.post(href, expense).pipe(map(value => new Expense(value)));
   }
 
   deleteExpense(service: ResourceService, id: number): Observable<void> {

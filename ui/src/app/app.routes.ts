@@ -1,18 +1,9 @@
 import { Routes } from '@angular/router';
-import { ShowExpense } from './Expense/show-expense/show-expense.component';
+import { FinancePage } from './finance-page';
 
 export const routes: Routes = [
-  {
-    path: 'chart',
-    component: ShowExpense
-  },
-  {
-    path: '',
-    redirectTo: 'chart',
-    pathMatch: 'full'
-  },
-  {
-    path: '**',
-    redirectTo: 'chart'
-  }
+  { path: '', pathMatch: 'full', component: FinancePage, title: 'Expenselytics · Your money, made clear' },
+  { path: 'workspace', component: FinancePage, data: { workspace: true }, title: 'Your workspace · Expenselytics' },
+  { path: 'chart', redirectTo: 'workspace', pathMatch: 'full' },
+  { path: '**', redirectTo: '' },
 ];

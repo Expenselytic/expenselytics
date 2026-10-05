@@ -1,0 +1,26 @@
+<section aria-label="Spending experiments">
+  <p class="eyebrow">SMALL CHANGES, MEASURABLE PROGRESS</p><h3>Spending experiments</h3>
+  <p>Try a change in one category, compare it with your previous spending, and link the money you actually deposited into savings.</p>
+  <form #experimentForm="ngForm" (ngSubmit)="experimentForm.valid && create()">
+    <label>Your experiment<input name="experimentName" [(ngModel)]="form.name" placeholder="Cook at home more often" maxlength="100" required></label>
+    <label>Category<select name="experimentCategory" [(ngModel)]="form.category"><option *ngFor="let category of categories">{{ category }}</option></select></label>
+    <label>Start date<input name="experimentStart" type="date" [(ngModel)]="form.startDate" required></label>
+    <label>Duration in days<input name="experimentDuration" type="number" [(ngModel)]="form.durationDays" min="1" max="90" step="1" required></label>
+    <button type="submit" [disabled]="creating || loading || loadFailed || experimentForm.invalid">{{ creating ? 'Creating…' : 'Start experiment' }}</button>
+  </form>
+  <p role="status">{{ message }}</p>
+  <p *ngIf="loading">Loading experiments…</p><button *ngIf="loadFailed" (click)="load()">Retry</button>
+  <p *ngIf="!loading && !loadFailed && !experiments.length">Your first experiment starts with one small change.</p>
+  <article *ngFor="let card of cards">
+    <header><div><h4>{{ card.experiment.name }}</h4><span>{{ card.experiment.category }} · {{ card.experiment.durationDays }} days</span></div><b>{{ card.progress.status }}</b></header>
+    <progress [value]="card.progress.percent" max="100" aria-label="Experiment time elapsed"></progress>
+    <p>{{ card.experiment.startDate }} through {{ card.progress.end | date:'mediumDate' }} (end exclusive).</p>
+    <div class="numbers"><div><span>Spending so far</span><strong>{{ card.progress.actual | currency }}</strong></div><div><span>Estimated reduction</span><strong>{{ card.progress.hasBaseline ? (card.progress.reduction | currency) : 'Not enough history' }}</strong></div><div><span>Linked savings deposits</span><strong>{{ card.progress.deposited | currency }}</strong></div></div>
+    <p *ngIf="card.progress.hasBaseline">Previous {{ card.experiment.durationDays }} days: {{ card.progress.baseline | currency }}. Expected spending for elapsed time: {{ card.progress.expected | currency }}. {{ card.progress.over > 0 ? 'Spending is above the previous pace by ' + (card.progress.over | currency) + '.' : '' }}</p>
+    <p *ngIf="!card.progress.hasBaseline">No recorded spending in this category during the preceding period. Add historical expenses to establish a comparison.</p>
+    <p class="note">Estimates use your recorded expenses and assume spending is spread evenly over time. Missing transactions and overlapping experiments can affect the comparison. A reduction is not a savings deposit.</p>
+    <div class="link"><label>Link an existing deposit<select [(ngModel)]="selected[card.experiment.id]" [disabled]="busy.has(card.experiment.id)"><option [ngValue]="null">Choose a saving</option><option *ngFor="let saving of available(card.experiment)" [ngValue]="saving.id">{{ saving.expenseName }} · {{ saving.amount | currency }}</option></select></label><button (click)="link(card.experiment)" [disabled]="busy.has(card.experiment.id) || !selected[card.experiment.id]">Link deposit</button></div>
+    <p *ngIf="!available(card.experiment).length">Add a saving dated on or after this experiment’s start using the savings form below. Each deposit can belong to one experiment.</p>
+    <ul><li *ngFor="let saving of linked(card.experiment)"><span>{{ saving.expenseName }} · {{ saving.amount | currency }}</span><button class="secondary" (click)="unlink(card.experiment, saving.id)" [disabled]="busy.has(card.experiment.id)" [attr.aria-label]="'Unlink ' + saving.expenseName">Unlink</button></li></ul>
+  </article>
+</section>

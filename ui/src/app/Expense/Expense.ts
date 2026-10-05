@@ -8,7 +8,8 @@ export class Expense extends Resource{
     readonly expenseCategory: string;
 
     constructor(obj: any) {
-        super(obj);
+        // Pass only HAL metadata: the API's amount field conflicts with our getter.
+        super({ _links: obj._links ?? {}, _embedded: obj._embedded ?? {} });
         this.id = Number(obj.id ?? obj.uid ?? 0);
         this.expenseName = String(obj.name ?? 'Untitled expense');
         this.expenseAmount = String(obj.amount ?? '0');
